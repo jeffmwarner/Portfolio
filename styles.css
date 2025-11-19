@@ -73,19 +73,12 @@ body {
   animation: chat-pop 0.18s ease-out;
 }
 
-/* .chat-bubble.bot {
+ .chat-bubble.bot {
   align-self: flex-start;
-  background: radial-gradient(circle at top left, #1d2537, #020617);
+  background: radial-gradient(circle at top left, #020617,  #1d2537);
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
-} */
-
-.chat-bubble.bot {
-  align-self: flex-start;
-  background: linear-gradient(135deg, var(--accent-user), #242e69);
-  color: #2b41bd;
-  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.45);
-}
+} 
 
 .chat-bubble.user {
   align-self: flex-end;
