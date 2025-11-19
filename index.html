@@ -77,27 +77,27 @@
 const conversationScript = [
 {
   type: "bot",
-  text: `Hi, I'm here to help you get connected with care.`,
+  text: "Hi, I'm here to help you get connected with care.",
 },
 {
   type: "userInput",
   id: "presentingConcern",
-  prompt: `To start, what's the main thing you're hoping to get support with right now?`,
+  text: "To start, what's the main thing you're hoping to get support with right now?",
 },
 {
   type: "bot",
-  text: `Thank you for sharing that. That sounds really important.`,
+  text: "Thank you for sharing that. That sounds really important.",
 },
 {
   type: "choice",
   id: "focusArea",
-  prompt: `If you had to choise one area to focus on first, which feels most important?`,
+  text: "If you had to choise one area to focus on first, which feels most important?",
   choices: ["Managing anxiety or stress", "Sleep problems", "Depression"],
 },
 {
   type: "userInput",
   id: "button",
-  prompt: `Got it! We'll keep that in mind as a starting point. "${state.focusArea}" is an important topic.`,
+  text: "Got it! We'll keep that in mind as a starting point. {{focusArea}} is an important topic.",
 },
 ];
   const XXXconversationScript = [
@@ -187,7 +187,101 @@ const conversationScript = [
     chatLogEl.scrollTop = chatLogEl.scrollHeight;
   }
 
+  const state = {};  // where we store answers keyed by step.id
+
+function injectState(template, state) {
+  if (typeof template !== "string") return template;
+
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    return state[key] !== undefined ? state[key] : "";
+  });
+}
+
   function renderStep() {
+  chatInputAreaEl.innerHTML = ""; // clear previous input area
+
+  if (currentStepIndex >= conversationScript.length) {
+    // End of script
+    return;
+  }
+
+  const step = conversationScript[currentStepIndex];
+
+  if (step.type === "bot") {
+    const raw = (typeof step.text === "function" ? step.text(state) : step.text);
+    const text = injectState(raw, state);
+    addBubble(text, "bot");
+    currentStepIndex++;
+    // Automatically move to next step after a short delay
+    setTimeout(renderStep, 700);
+  }
+
+  else if (step.type === "userInput") {
+    // Show prompt as bot, then show a textarea + submit
+    const promptText = injectState(step.prompt || "", state);
+    addBubble(promptText, "bot");
+
+    const wrapper = document.createElement("div");
+
+    const textarea = document.createElement("textarea");
+    textarea.rows = 3;
+    textarea.placeholder = "Type your response here...";
+
+    const submitBtn = document.createElement("button");
+    submitBtn.textContent = "Submit";
+    submitBtn.className = "primary";
+
+    submitBtn.addEventListener("click", () => {
+      const value = textarea.value.trim();
+      if (!value) return;
+
+      // Add user bubble
+      addBubble(value, "user");
+      state[step.id] = value;
+
+      // Clear input area and move to next step
+      chatInputAreaEl.innerHTML = "";
+      currentStepIndex++;
+      renderStep();
+    });
+
+    wrapper.appendChild(textarea);
+    wrapper.appendChild(submitBtn);
+    chatInputAreaEl.appendChild(wrapper);
+  }
+
+  else if (step.type === "choice") {
+    // Show prompt as bot, then buttons for choices
+    const promptText = injectState(step.prompt || "", state);
+    addBubble(promptText, "bot");
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "choice-buttons";
+
+    step.choices.forEach((choiceText) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = choiceText;
+
+      btn.addEventListener("click", () => {
+        // When a choice is clicked, show it as a user bubble
+        addBubble(choiceText, "user");
+        state[step.id] = choiceText;
+
+        chatInputAreaEl.innerHTML = "";
+        currentStepIndex++;
+        renderStep();
+      });
+
+      wrapper.appendChild(btn);
+    });
+
+    chatInputAreaEl.appendChild(wrapper);
+  }
+}
+
+        
+  function XXXrenderStep() {
     chatInputAreaEl.innerHTML = ""; // clear previous input area
 
     if (currentStepIndex >= conversationScript.length) {
