@@ -55,7 +55,7 @@
       const data = await res.json();
 
       const formatReply = (text) => {
-        return text.replace(/{[.?!])\s+\g, '$1\n\n');
+        return text.replace(/{[.?!])\s+/g, '$1\n\n');
       }
       
       outputEl.textContent = data.reply;
