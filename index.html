@@ -25,6 +25,21 @@
 </div>
 <pre id="realAssistantOutput" class="assistant-output"></pre>
 
+<h2>Scripted Conversation Flow Demo</h2>
+<p>
+  This example shows a predetermined mental health intake flow with assistant and user messages.
+</p>
+
+<div id="scripted-chat" class="chat-container">
+  <div id="chat-log"></div>
+
+  <!-- Dynamic input area (text or choices appear here when needed) -->
+  <div id="chat-input-area" class="chat-input-area">
+    <!-- Filled by JS depending on the current step -->
+  </div>
+</div>
+
+
 <script>
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
 
@@ -66,5 +81,179 @@
     }
   });
 </script>
+    <script>
+  // Predetermined conversation script
+  // Types: "bot", "userInput", "choice"
+  const conversationScript = [
+    {
+      type: "bot",
+      text: "Hi, I'm here to help you get connected with care. I'll ask a few quick questions to better understand what you need."
+    },
+    {
+      type: "userInput",
+      id: "presentingConcern",
+      prompt: "To start, what’s the main thing you’re hoping to get support with right now?"
+    },
+    {
+      type: "bot",
+      text: (state) => {
+        return `Thank you for sharing that. It sounds like you're dealing with: “${state.presentingConcern}”. That’s a lot to carry.`;
+      }
+    },
+    {
+      type: "choice",
+      id: "focusArea",
+      prompt: "If you had to choose one area to focus on first, which feels most important?",
+      choices: [
+        "Managing anxiety or stress",
+        "Mood / depression",
+        "Sleep problems",
+        "Relationships and boundaries",
+        "I’m not sure yet"
+      ]
+    },
+    {
+      type: "bot",
+      text: (state) => {
+        return `Got it. We'll keep “${state.focusArea}” in mind as a starting point.`;
+      }
+    },
+    {
+      type: "userInput",
+      id: "timeline",
+      prompt: "How long have you been dealing with this, roughly?"
+    },
+    {
+      type: "bot",
+      text: (state) => {
+        return `Thanks. Knowing that this has been going on for about ${state.timeline} helps give context.`;
+      }
+    },
+    {
+      type: "choice",
+      id: "nextStep",
+      prompt: "What feels like the next most helpful step?",
+      choices: [
+        "Explore matching with a therapist",
+        "Learn more about what therapy is like",
+        "See coping strategies I can try on my own first"
+      ]
+    },
+    {
+      type: "bot",
+      text: (state) => {
+        if (state.nextStep.includes("matching")) {
+          return "Great. Based on what you’ve shared, we’d guide you toward a therapist who has experience with similar concerns and preferences.";
+        } else if (state.nextStep.includes("therapy is like")) {
+          return "Totally fair. Many people want to understand what to expect before starting. We’d walk you through what sessions typically look like and how to find a good fit.";
+        } else {
+          return "That makes sense. Sometimes starting with small, concrete coping strategies can make the idea of therapy feel more approachable later.";
+        }
+      }
+    },
+    {
+      type: "bot",
+      text: "This is just a short demo, but this kind of flow can be extended into a full intake or guidance experience."
+    }
+  ];
+
+  const chatLogEl = document.getElementById("chat-log");
+  const chatInputAreaEl = document.getElementById("chat-input-area");
+
+  let currentStepIndex = 0;
+  const state = {}; // where we store user answers by id
+
+  function addBubble(text, role) {
+    const bubble = document.createElement("div");
+    bubble.className = `chat-bubble ${role}`;
+    bubble.textContent = text;
+    chatLogEl.appendChild(bubble);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+  }
+
+  function renderStep() {
+    chatInputAreaEl.innerHTML = ""; // clear previous input area
+
+    if (currentStepIndex >= conversationScript.length) {
+      // End of script
+      return;
+    }
+
+    const step = conversationScript[currentStepIndex];
+
+    if (step.type === "bot") {
+      const text = typeof step.text === "function" ? step.text(state) : step.text;
+      addBubble(text, "bot");
+      currentStepIndex++;
+      // Automatically move to next step after a short delay
+      setTimeout(renderStep, 700);
+    }
+
+    else if (step.type === "userInput") {
+      // Show prompt as bot, then show a textarea + submit
+      addBubble(step.prompt, "bot");
+
+      const wrapper = document.createElement("div");
+
+      const textarea = document.createElement("textarea");
+      textarea.rows = 3;
+      textarea.placeholder = "Type your response here...";
+
+      const submitBtn = document.createElement("button");
+      submitBtn.textContent = "Submit";
+      submitBtn.className = "primary";
+
+      submitBtn.addEventListener("click", () => {
+        const value = textarea.value.trim();
+        if (!value) return;
+
+        // Add user bubble
+        addBubble(value, "user");
+        state[step.id] = value;
+
+        // Clear input area and move to next step
+        chatInputAreaEl.innerHTML = "";
+        currentStepIndex++;
+        renderStep();
+      });
+
+      wrapper.appendChild(textarea);
+      wrapper.appendChild(submitBtn);
+      chatInputAreaEl.appendChild(wrapper);
+    }
+
+    else if (step.type === "choice") {
+      // Show prompt as bot, then buttons for choices
+      addBubble(step.prompt, "bot");
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "choice-buttons";
+
+      step.choices.forEach((choiceText) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = choiceText;
+
+        btn.addEventListener("click", () => {
+          // When a choice is clicked, show it as a user bubble
+          addBubble(choiceText, "user");
+          state[step.id] = choiceText;
+
+          chatInputAreaEl.innerHTML = "";
+          currentStepIndex++;
+          renderStep();
+        });
+
+        wrapper.appendChild(btn);
+      });
+
+      chatInputAreaEl.appendChild(wrapper);
+    }
+  }
+
+  // Kick off the scripted conversation when the page loads
+  renderStep();
+</script>
+
 
 </html>
