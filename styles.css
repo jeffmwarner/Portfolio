@@ -32,6 +32,7 @@
   max-width: 80%;
   line-height: 1.4;
   font-size: 0.95rem;
+  box-shadow: offset-x offset-y blur-radius spread-radius color;
 }
 
 .chat-bubble.bot {
