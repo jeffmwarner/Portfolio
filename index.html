@@ -1,0 +1,43 @@
+<h2>Try a Sample Mental Health Intake Prompt</h2>
+<div>
+  <textarea id="userInput" rows="4" placeholder="Tell me a bit about how you're feeling today..."></textarea>
+  <br />
+  <button id="sendRealBtn">Ask the assistant</button>
+</div>
+<pre id="realAssistantOutput"></pre>
+
+<script>
+  const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
+
+  document.getElementById("sendRealBtn").addEventListener("click", async () => {
+    const inputEl = document.getElementById("userInput");
+    const outputEl = document.getElementById("realAssistantOutput");
+    const text = inputEl.value.trim();
+
+    if (!text) {
+      outputEl.textContent = "Please type something so I can send it to the assistant.";
+      return;
+    }
+
+    outputEl.textContent = "Thinking...";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      });
+
+      if (!res.ok) {
+        outputEl.textContent = "The assistant ran into a problem. Please try again later.";
+        return;
+      }
+
+      const data = await res.json();
+      outputEl.textContent = data.reply;
+    } catch (err) {
+      console.error(err);
+      outputEl.textContent = "Network error talking to the assistant.";
+    }
+  });
+</script>
