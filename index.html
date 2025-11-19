@@ -74,12 +74,31 @@
     <script>
   // Predetermined conversation script
   // Types: "bot", "userInput", "choice"
-  const conversationScript = [
-  {"type": "bot", "text": "Hi, I'm here to help you get connected with care."},
-  {"type": "userInput", "id": "presentingConcern", "prompt": "To start, what's the main thing you're hoping to get support with right now?"},
-  {"type": "bot", "text": "Thank you for sharing that. That sounds really important."},
-  {"type": "choice", "id": "focusArea", "prompt": "If you had to choise one area to focus on first, which feels most important?", "choices": ["Managing anxiety or stress", "Sleep problems", "Depression"]},
-  {"type": "userInput", "id": "button", "prompt": "Got it! We'll keep that in mind as a starting point. \"${state.focusArea}\" is an important topic."},
+const conversationScript = [
+{
+  type: "bot",
+  text: `Hi, I'm here to help you get connected with care.`,
+},
+{
+  type: "userInput",
+  id: "presentingConcern",
+  prompt: `To start, what's the main thing you're hoping to get support with right now?`,
+},
+{
+  type: "bot",
+  text: `Thank you for sharing that. That sounds really important.`,
+},
+{
+  type: "choice",
+  id: "focusArea",
+  prompt: `If you had to choise one area to focus on first, which feels most important?`,
+  choices: ["Managing anxiety or stress", "Sleep problems", "Depression"],
+},
+{
+  type: "userInput",
+  id: "button",
+  prompt: `Got it! We'll keep that in mind as a starting point. "${state.focusArea}" is an important topic.`,
+},
 ];
   const XXXconversationScript = [
     {
