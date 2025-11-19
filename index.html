@@ -1,10 +1,21 @@
+<style>
+.assistant-output {
+  white-space: pre-wrap;      /* keep newlines, allow wrapping */
+  word-wrap: break-word;      /* break long words if needed */
+  padding: 0.75rem;
+  background: #f3f3f3;
+  border-radius: 4px;
+}
+  
+</style>
+
 <h2>Try a Sample Mental Health Intake Prompt</h2>
 <div>
   <textarea id="userInput" rows="4" placeholder="Tell me a bit about how you're feeling today..."></textarea>
   <br />
   <button id="sendRealBtn">Ask the assistant</button>
 </div>
-<pre id="realAssistantOutput"></pre>
+<pre id="realAssistantOutput" class="assistant-output"></pre>
 
 <script>
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
@@ -34,9 +45,15 @@
       }
 
       const data = await res.json();
+
+      const formatReply = (text) => {
+        return text.replace(/{[.?!])\s+\g, '$1\n\n');
+      }
+      
       outputEl.textContent = data.reply;
     } catch (err) {
       console.error(err);
+      
       outputEl.textContent = "Network error talking to the assistant.";
     }
   });
