@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jeff Warner — Conversational Workflow Sample</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem auto;
+            max-width: 800px;
+            line-height: 1.6;
+            color: #222;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .box {
+            border-left: 4px solid #4a90e2;
+            padding: 0.5rem 1rem;
+            margin: 1rem 0;
+            background: #f7f9fc;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        .flow-step {
+            margin-bottom: 1.2rem;
+            padding-left: 1rem;
+        }
+        .arrow {
+            margin: 0.3rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Conversation Workflow Sample<br />Jeffrey M. Warner, RN</h1>
+    <p>This page demonstrates a synthetic, de-identified workflow representative of my approach to designing clear, safe, multi-turn conversational experiences.</p>
+
+    <h2>🧩 Scenario: Mental Health Intake Assistant</h2>
+    <p>The goal is to guide a user through a sensitive, supportive intake flow while maintaining safety boundaries, predictable structure, and clear escalation logic.</p>
+
+    <h2>Conversation Flow (Simplified)</h2>
+
+    <div class="flow-step">
+        <strong>1. Greeting + Context Setting</strong>
+        <div class="arrow">⟶ "Hi, I’m here to help you get connected with care. I’ll ask a few quick questions to guide you to the right support."</div>
+    </div>
+
+    <div class="flow-step">
+        <strong>2. Presenting Concern</strong>
+        <div class="arrow">⟶ "What’s the main concern you’re hoping to talk about today?"</div>
+    </div>
+
+    <div class="flow-step">
+        <strong>3. Supportive Reflection (LLM prompt pattern)</strong>
+        <div class="arrow">⟶ System prompt instructs the model to reflect user language with validation and without offering clinical advice.</div>
+    </div>
+
+    <div class="flow-step">
+        <strong>4. Safety Check</strong>
+        <div class="arrow">⟶ "Have you had any thoughts of harming yourself or others?"</div>
+        <div class="arrow">⟶ If <em>yes</em>: immediate escalation to crisis resources + structured, safety-approved messaging.</div>
+        <div class="arrow">⟶ If <em>no</em>: proceed to intake flow.
+        </div>
+    </div>
+
+    <div class="flow-step">
+        <strong>5. Intake Data Collection</strong>
+        <div class="arrow">⟶ Symptoms, duration, frequency</div>
+        <div class="arrow">⟶ Previous care experience</div>
+        <div class="arrow">⟶ Care preferences and availability</div>
+    </div>
+
+    <div class="flow-step">
+        <strong>6. Routing Recommendation</strong>
+        <div class="arrow">⟶ LLM provides structured output (JSON) indicating recommended next steps.</div>
+    </div>
+
+    <h2>Structured Output Example (JSON)</h2>
+    <pre>{
+  "summary": "User reports persistent anxiety and difficulty sleeping.",
+  "risk_level": "low",
+  "recommended_path": "Standard therapy intake",
+  "tone_guidance": "Empathetic, supportive, validating, non-clinical",
+  "disclaimer": "This is general support and not a medical diagnosis."
+}</pre>
+
+    <h2>Prompt Snippet</h2>
+    <div class="box">
+        <p><strong>System Prompt (excerpt):</strong></p>
+        <p>
+            "You are a supportive mental-health intake assistant. Use warm, validating
+            language. Do not diagnose. Reflect user concerns briefly. If risk indicators are
+            mentioned, follow escalation pattern A. Always produce structured JSON output
+            according to the schema provided."
+        </p>
+    </div>
+
+    <h2>Safety Fallback Example</h2>
+    <pre>User: "I don't know if I can keep doing this."
+Assistant (escalation mode): "I'm really sorry you're feeling this way. You’re not alone. I want to make sure you get support right now. If you’re in immediate danger, please call 988 or your local emergency number. I can also help connect you to additional resources."</pre>
+
+    <h2>Design Principles Used</h2>
+    <ul>
+        <li>Predictable multi-turn structure</li>
+        <li>Tone-safe reflection</li>
+        <li>Strict non-diagnostic constraints</li>
+        <li>Structured-output consistency</li>
+        <li>Clear safety escalation paths</li>
+        <li>Modular, reusable flow components</li>
+    </ul>
+
+    <p>For questions or details: <strong>JeffMWarner@gmail.com</strong></p>
+</body>
+</html>
+
