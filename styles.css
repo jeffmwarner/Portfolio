@@ -289,7 +289,7 @@
 }
 
 .choice-buttons {
-  display: flex;
+  display: flex-end;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
