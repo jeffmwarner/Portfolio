@@ -35,6 +35,8 @@
 </div>
 
 <script>
+  let conversationScript = [];
+  let activeLLMProfile = 'default';
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
 
   document.getElementById("sendRealBtn").addEventListener("click", async () => {
@@ -79,12 +81,47 @@
   
 
   // --- Predetermined conversation script with optional routing fields ---
+
+
+const LLM_PROFILES = {
+  default: `
+You are a careful, concise assistant. Be clear, kind, and avoid medical or legal advice.
+`.trim(),
+
+  hypertensionEducation: `
+You are a conservative, safety-focused assistant explaining hypertension (high blood pressure)
+to patients in plain language. You:
+- Do NOT diagnose, prescribe, or adjust medications.
+- Encourage following the patient’s own clinician's advice.
+- Explain concepts like blood pressure ranges, home monitoring, and when to seek urgent/emergency care.
+- Always include a brief safety disclaimer.
+Keep responses short, structured, and reassuring.
+`.trim(),
+
+  mentalHealthIntake: `
+You are a supportive mental-health intake assistant.
+Your job is to:
+- Reflect and validate what the person shares.
+- Ask gentle follow-up questions if needed.
+- Avoid diagnoses or labels.
+- If someone mentions self-harm, harm to others, or feeling unsafe, gently encourage crisis resources or emergency care.
+Keep responses warm, human, and 3–5 sentences long.
+`.trim(),
+};
+
 const SCENARIOS = {
-    hypertension: SCRIPT_HYPERTENSION,
-    mh_intake: SCRIPT_MH_INTAKE,
+  hypertension: {
+      script: SCRIPT_HYPERTENSION,
+      llmProfile: "hypertensionEducation",
+  },
+  mh_intake: {
+      script: SCRIPT_MH_INTAKE,
+      llmProfile: "mentalHealthIntake",
+  }
 };
     
-var conversationScript = SCENARIOS.hypertension
+    
+
 const STATICconversationScript = [
   {
     type: "bot",
@@ -228,22 +265,22 @@ scenarioSelect.addEventListener("change", (e) => {
 });
 
 
-   function resetConversation(scriptKey) {
-  conversationScript = SCENARIOS[scriptKey];
+function resetConversation(key) {
+  const scenario = SCENARIOS[key];
+  if (!scenario) return;
 
-  // Clear UI
+  conversationScript = scenario.script;
+  activeLLMProfile = scenario.llmProfile || "default";
+
+  // reset UI + state
   chatLogEl.innerHTML = "";
   chatInputAreaEl.innerHTML = "";
-
-  // Reset state
   currentStepIndex = 0;
-  for (const k of Object.keys(state)) {
-    delete state[k];
-  }
+  for (const k of Object.keys(state)) delete state[k];
 
-  // Kick off first step
   renderStep();
 }
+
 
   // --- Build stepId -> index map for branching ---
   const stepIndexById = {};
@@ -295,7 +332,30 @@ scenarioSelect.addEventListener("change", (e) => {
     chatLogEl.scrollTop = chatLogEl.scrollHeight;
   }
 
-  async function callLLM(userText, endpointOverride) {
+  async function callLLM(userText, options = {}) {
+  const { endpoint, systemPrompt } = options;
+  const url = endpoint || API_URL;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: userText,
+      systemPrompt: systemPrompt || undefined, // omit if not provided
+    }),
+  });
+
+  if (!response.ok) {
+    console.error("LLM error:", await response.text());
+    return "Sorry, I’m having trouble responding right now.";
+  }
+
+  const data = await response.json();
+  return data.reply || data.summary || JSON.stringify(data);
+}
+
+    
+  async function XXXcallLLM(userText, endpointOverride) {
     const url = endpointOverride || API_URL;
 
     const response = await fetch(url, {
