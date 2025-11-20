@@ -76,7 +76,101 @@
 
   // --- Predetermined conversation script with optional routing fields ---
 
-  const conversationScript = [
+const conversationScript = [
+  {
+    type: "bot",
+    stepId: "intro1",
+    next: "intro2",
+    text: `Hi there Ñ IÕm here to help you get connected with care.`,
+  },
+  {
+    type: "bot",
+    stepId: "intro2",
+    next: "askConcern",
+    text: `To get started`,
+  },
+  {
+    type: "choice",
+    stepId: "focusChoice",
+    branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath" },
+    id: "focusArea",
+    prompt: `Which area feels most important to talk about first?`,
+    choices: ["Stress", "Sleep", "Depression", "Anxiety"],
+  },
+  {
+    type: "bot",
+    stepId: "stressPath",
+    next: "stressLLM",
+    text: `LetÕs talk through stress first.`,
+  },
+  {
+    type: "llmBot",
+    stepId: "stressLLM",
+    next: "rejoin",
+    source: "focusArea",
+    endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
+  },
+  {
+    type: "bot",
+    stepId: "sleepPath",
+    next: "sleepLLM",
+    text: `Sleep problems can impact everything. Let's unpack that.`,
+  },
+  {
+    type: "llmBot",
+    stepId: "sleepLLM",
+    next: "rejoin",
+    source: "focusArea",
+    endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
+  },
+  {
+    type: "bot",
+    stepId: "depressionPath",
+    next: "depLLM",
+    text: `Thanks for bringing up depression Ñ thatÕs important.`,
+  },
+  {
+    type: "llmBot",
+    stepId: "depLLM",
+    next: "rejoin",
+    source: "focusArea",
+    endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
+  },
+  {
+    type: "bot",
+    stepId: "anxietyPath",
+    next: "anxietyLLM",
+    text: `While anxiety can be helpful in the right situation, too much anxiety at the wrong time can be a lot to manage.`,
+  },
+  {
+    type: "llmBot",
+    stepId: "anxietyLLM",
+    next: "rejoin",
+    source: "focusArea",
+  },
+  {
+    type: "bot",
+    stepId: "rejoin",
+    next: "nextStep",
+    text: `Before we wrap up`,
+  },
+  {
+    type: "choice",
+    stepId: "nextStep",
+    next: "final",
+    id: "nextStepChoice",
+    prompt: `Choose one`,
+    choices: ["Get matched with a therapist", "Learn what therapy is like", "Try coping strategies"],
+  },
+  {
+    type: "bot",
+    stepId: "final",
+    text: `Thanks! This is only a short demo, but this framework scales to a full intake experience.`,
+  },
+];
+
+    
+  const AAAconversationScript = [
     {
       type: "bot",
       stepId: "intro1",
