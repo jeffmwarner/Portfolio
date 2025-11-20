@@ -56,14 +56,14 @@
   align-self: flex-start;
   background: #e6f0ff;
   color: #123;
-  filter: drop-shadow(0px 8px 18px #545454);
+  filter: drop-shadow(0px 3px 7px #545454);
 }
 
 .chat-bubble.user {
   align-self: flex-end;
   background: #d1f3d0;
   color: #123;
-  filter: drop-shadow(0px 8px 18px #545454);
+  filter: drop-shadow(0px 3px 7px #545454);
 }
 
 /* Tiny tails (optional but nice)
