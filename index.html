@@ -92,7 +92,7 @@ const conversationScript = [
   {
     type: "choice",
     stepId: "focusChoice",
-    branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath", "Anxiety": "anxietyPath" },
+    branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath", "Anxiety": "anxietyPath", "Skip this": "final" },
     id: "focusArea",
     prompt: `Which area feels most important to talk about first?`,
     choices: ["Stress", "Sleep", "Depression", "Anxiety"],
@@ -159,7 +159,7 @@ const conversationScript = [
     stepId: "nextStep",
     next: "final",
     id: "nextStepChoice",
-    prompt: `Choose one`,
+    prompt: `What feels like a helpful next step?`,
     choices: ["Get matched with a therapist", "Learn what therapy is like", "Try coping strategies"],
   },
   {
@@ -168,6 +168,7 @@ const conversationScript = [
     text: `Thanks! This is only a short demo, but this framework scales to a full intake experience.`,
   },
 ];
+
 
 
     
