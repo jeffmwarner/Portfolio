@@ -76,11 +76,12 @@
   // Types: "bot", "userInput", "choice"
 const conversationScript = [
   {"type": "bot", "text": "Hello! I'm your digital assistant, here to help with your recent hypertension (high blood pressure) diagnosis."},
-  {"type": "bot", "text": "There's a lot of things to cover, and it can feel overwhelmingÉ"},
-  {"type": "bot", "text": "É but that's where we can help!"},
+  {"type": "bot", "text": "There's a lot of things to cover, and it can feel overwhelming..."},
+  {"type": "bot", "text": "...but that's where we can help!"},
   {"type": "choice", "id": "focusArea", "prompt": "If you had to choose one area to focus on first, which feels most important?", "choices": ["Signs and symptoms", "Measuring blood pressure", "Medication concerns"]},
   {"type": "llmBot", "source": "focusArea"},
 ];
+
 
 
 const ZZZconversationScript = [
