@@ -71,78 +71,157 @@
     }
   });
 </script>
-    <script>
-  // Predetermined conversation script
-  // Types: "bot", "userInput", "choice"
-const conversationScript = [
-  {"type": "bot", "text": "Hello! I'm your digital assistant, here to help with your recent hypertension (high blood pressure) diagnosis."},
-  {"type": "bot", "text": "There's a lot of things to cover, and it can feel overwhelming..."},
-  {"type": "bot", "text": "...but that's where we can help!"},
-  {"type": "choice", "id": "focusArea", "prompt": "If you had to choose one area to focus on first, which feels most important?", "choices": ["Signs and symptoms", "Measuring blood pressure", "Medication concerns"]},
-  {"type": "llmBot", "source": "focusArea"},
-];
+<script>
+  const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // Render backend
 
+  // --- Predetermined conversation script with optional routing fields ---
 
-
-const ZZZconversationScript = [
-  {"type": "bot", "text": "Hi, I'm here to help you get connected with care."},
-  {"type": "llmInput", "id": "presentingConcern", "prompt": "To start, what's the main thing you're hoping to get support with right now?"},
-  {"type": "choice", "id": "focusArea", "prompt": "If you had to choose one area to focus on first, which feels most important?", "choices": ["Managing anxiety or stress", "Sleep problems", "Depression"]},
-  {"type": "choice", "id": "button", "prompt": "Got it! We'll keep that in mind as a starting point.","choices":["Thanks"]},
-];
-        
-        
-const YYYconversationScript = [
-  {"type": "bot", "text": "Hi, I'm here to help you get connected with care."},
-  {"type": "userInput", "id": "presentingConcern", "prompt": "To start, what's the main thing you're hoping to get support with right now?"},
-  {"type": "bot", "text": "Thank you for sharing that. That sounds really important."},
-  {"type": "choice", "id": "focusArea", "prompt": "If you had to choose one area to focus on first, which feels most important?", "choices": ["Managing anxiety or stress", "Sleep problems", "Depression"]},
-  {"type": "userInput", "id": "button", "prompt": "Got it! We'll keep that in mind as a starting point. {{focusArea}} is an important topic."},
-];
-  const XXXconversationScript = [
+  const conversationScript = [
     {
       type: "bot",
-      text: "Hi, I'm here to help you get connected with care. I'll ask a few quick questions to better understand what you need."
+      stepId: "intro1",
+      text: "Hello! I'm your digital assistant, here to help with your recent hypertension (high blood pressure) diagnosis.",
+      next: "intro2",
+    },
+    {
+      type: "bot",
+      stepId: "intro2",
+      text: "There's a lot of things to cover, and it can feel overwhelming...",
+      next: "intro3",
+    },
+    {
+      type: "bot",
+      stepId: "intro3",
+      text: "...but that's where we can help!",
+      next: "focusChoice",
+    },
+    {
+      type: "choice",
+      stepId: "focusChoice",
+      id: "focusArea",
+      prompt:
+        "If you had to choose one area to focus on first, which feels most important?",
+      choices: [
+        "Signs and symptoms",
+        "Measuring blood pressure",
+        "Medication concerns",
+      ],
+      // You can branch each choice to its own path later if you want.
+      // For now, we'll just send whatever they pick to the LLM.
+      next: "focusLLM",
+    },
+    {
+      type: "llmBot",
+      stepId: "focusLLM",
+      source: "focusArea", // use the user's choice as input to the LLM
+      // id: "focusExplanation", // optional: store LLM reply in state
+      // endpoint: "/api/chat",   // optional override (defaults to API_URL)
+    },
+  ];
+
+  // Optional experimental scripts you had before (kept for reference)
+  const ZZZconversationScript = [
+    {
+      type: "bot",
+      text: "Hi, I'm here to help you get connected with care.",
+    },
+    {
+      type: "llmInput",
+      id: "presentingConcern",
+      prompt:
+        "To start, what's the main thing you're hoping to get support with right now?",
+    },
+    {
+      type: "choice",
+      id: "focusArea",
+      prompt:
+        "If you had to choose one area to focus on first, which feels most important?",
+      choices: ["Managing anxiety or stress", "Sleep problems", "Depression"],
+    },
+    {
+      type: "choice",
+      id: "button",
+      prompt: "Got it! We'll keep that in mind as a starting point.",
+      choices: ["Thanks"],
+    },
+  ];
+
+  const YYYconversationScript = [
+    {
+      type: "bot",
+      text: "Hi, I'm here to help you get connected with care.",
     },
     {
       type: "userInput",
       id: "presentingConcern",
-      prompt: "To start, what’s the main thing you’re hoping to get support with right now?"
+      prompt:
+        "To start, what's the main thing you're hoping to get support with right now?",
+    },
+    {
+      type: "bot",
+      text: "Thank you for sharing that. That sounds really important.",
+    },
+    {
+      type: "choice",
+      id: "focusArea",
+      prompt:
+        "If you had to choose one area to focus on first, which feels most important?",
+      choices: ["Managing anxiety or stress", "Sleep problems", "Depression"],
+    },
+    {
+      type: "userInput",
+      id: "button",
+      prompt:
+        "Got it! We'll keep that in mind as a starting point. {{focusArea}} is an important topic.",
+    },
+  ];
+
+  const XXXconversationScript = [
+    {
+      type: "bot",
+      text: "Hi, I'm here to help you get connected with care. I'll ask a few quick questions to better understand what you need.",
+    },
+    {
+      type: "userInput",
+      id: "presentingConcern",
+      prompt:
+        "To start, what’s the main thing you’re hoping to get support with right now?",
     },
     {
       type: "bot",
       text: (state) => {
         return `Thank you for sharing that. It sounds like you're dealing with: “${state.presentingConcern}”. That’s a lot to carry.`;
-      }
+      },
     },
     {
       type: "choice",
       id: "focusArea",
-      prompt: "If you had to choose one area to focus on first, which feels most important?",
+      prompt:
+        "If you had to choose one area to focus on first, which feels most important?",
       choices: [
         "Managing anxiety or stress",
         "Mood / depression",
         "Sleep problems",
         "Relationships and boundaries",
-        "I’m not sure yet"
-      ]
+        "I’m not sure yet",
+      ],
     },
     {
       type: "bot",
       text: (state) => {
         return `Got it. We'll keep “${state.focusArea}” in mind as a starting point.`;
-      }
+      },
     },
     {
       type: "userInput",
       id: "timeline",
-      prompt: "How long have you been dealing with this, roughly?"
+      prompt: "How long have you been dealing with this, roughly?",
     },
     {
       type: "bot",
       text: (state) => {
         return `Thanks. Knowing that this has been going on for about ${state.timeline} helps give context.`;
-      }
+      },
     },
     {
       type: "choice",
@@ -151,8 +230,8 @@ const YYYconversationScript = [
       choices: [
         "Explore matching with a therapist",
         "Learn more about what therapy is like",
-        "See coping strategies I can try on my own first"
-      ]
+        "See coping strategies I can try on my own first",
+      ],
     },
     {
       type: "bot",
@@ -164,19 +243,55 @@ const YYYconversationScript = [
         } else {
           return "That makes sense. Sometimes starting with small, concrete coping strategies can make the idea of therapy feel more approachable later.";
         }
-      }
+      },
     },
     {
       type: "bot",
-      text: "This is just a short demo, but this kind of flow can be extended into a full intake or guidance experience."
-    }
+      text: "This is just a short demo, but this kind of flow can be extended into a full intake or guidance experience.",
+    },
   ];
 
-const chatLogEl = document.getElementById("chat-log");
+  // --- Build stepId -> index map for branching ---
+  const stepIndexById = {};
+  conversationScript.forEach((step, index) => {
+    if (step.stepId) {
+      stepIndexById[step.stepId] = index;
+    }
+  });
+
+  function getNextIndex(currentIndex, step, options = {}) {
+    const { choiceValue } = options;
+
+    // 1. If this is a choice with branches and we have a match, follow that
+    if (step.branches && choiceValue && step.branches[choiceValue]) {
+      const target = step.branches[choiceValue];
+      if (typeof target === "number") return target;
+      if (typeof target === "string" && stepIndexById[target] != null) {
+        return stepIndexById[target];
+      }
+    }
+
+    // 2. Otherwise, if step has a 'next', follow it
+    if (step.next != null) {
+      if (typeof step.next === "number") {
+        return step.next;
+      }
+      if (typeof step.next === "string" && stepIndexById[step.next] != null) {
+        return stepIndexById[step.next];
+      }
+    }
+
+    // 3. Fallback: go to the next step in sequence
+    return currentIndex + 1;
+  }
+
+  // --- DOM wiring ---
+
+  const chatLogEl = document.getElementById("chat-log");
   const chatInputAreaEl = document.getElementById("chat-input-area");
 
   let currentStepIndex = 0;
-  const state = {}; // where we store user answers by id
+  const state = {};
 
   function addBubble(text, role) {
     const bubble = document.createElement("div");
@@ -186,90 +301,85 @@ const chatLogEl = document.getElementById("chat-log");
     chatLogEl.scrollTop = chatLogEl.scrollHeight;
   }
 
-async function callLLM(userText) {
-  const response = await fetch(`${API_URL}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userText })
-  });
+  async function callLLM(userText, endpointOverride) {
+    const url = endpointOverride || API_URL;
 
-  if (!response.ok) {
-    console.error("LLM error:", await response.text());
-    return "Sorry, I’m having trouble responding right now.";
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userText }),
+    });
+
+    if (!response.ok) {
+      console.error("LLM error:", await response.text());
+      return "Sorry, I’m having trouble responding right now.";
+    }
+
+    const data = await response.json();
+    return data.reply || data.summary || JSON.stringify(data);
   }
 
-  const data = await response.json();
-  // If your API returns { reply }, use data.reply
-  return data.reply || data.summary || JSON.stringify(data);
-}
+  // Typing indicator
 
-        let typingEl = null;
+  let typingEl = null;
 
-function showTypingIndicator(text = "") {
-  // Avoid duplicates
-  if (typingEl) return;
+  function showTypingIndicator(text = "Thinking…") {
+    if (typingEl) return; // avoid duplicates
 
-  typingEl = document.createElement("div");
-  typingEl.className = "chat-bubble bot"; // reuse your bot bubble styling
-  typingEl.innerHTML = `
-    <div class="typing-indicator">
-      <span>${text}</span>
-      <div class="typing-dots">
-        <span></span><span></span><span></span>
+    typingEl = document.createElement("div");
+    typingEl.className = "chat-bubble bot";
+    typingEl.innerHTML = `
+      <div class="typing-indicator">
+        <span>${text}</span>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
       </div>
-    </div>
-  `;
-  chatLogEl.appendChild(typingEl);
-  chatLogEl.scrollTop = chatLogEl.scrollHeight;
-}
-
-function hideTypingIndicator() {
-  if (typingEl && typingEl.parentNode) {
-    typingEl.parentNode.removeChild(typingEl);
+    `;
+    chatLogEl.appendChild(typingEl);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
   }
-  typingEl = null;
-}
 
+  function hideTypingIndicator() {
+    if (typingEl && typingEl.parentNode) {
+      typingEl.parentNode.removeChild(typingEl);
+    }
+    typingEl = null;
+  }
 
-        
+  // --- Main step renderer with branching ---
+
   function renderStep() {
-    chatInputAreaEl.innerHTML = ""; // clear previous input area
+    chatInputAreaEl.innerHTML = ""; // clear input area
 
     if (currentStepIndex >= conversationScript.length) {
-      // End of script
       return;
     }
 
     const step = conversationScript[currentStepIndex];
 
-    // if (step.type === "bot") {
-    //   const text = typeof step.text === "function" ? step.text(state) : step.text;
-    //   addBubble(text, "bot");
-    //   currentStepIndex++;
-    //   // Automatically move to next step after a short delay
-    //   setTimeout(renderStep, 700);
-    // }
-      if (step.type === "bot") {
-  const raw = (typeof step.text === "function" ? step.text(state) : step.text);
-  //const text = injectState ? injectState(raw, state) : raw; // if you’re using injectState
+    // BOT
+    if (step.type === "bot") {
+      const raw =
+        typeof step.text === "function" ? step.text(state) : step.text;
 
-  showTypingIndicator();
-  chatInputAreaEl.innerHTML = "";
+      showTypingIndicator();
+      chatInputAreaEl.innerHTML = "";
 
-  setTimeout(() => {
-    hideTypingIndicator();
-    addBubble(raw, "bot");
-    currentStepIndex++;
-    setTimeout(renderStep, 500);
-  }, 500); // 0.5s “thinking”
-}
+      setTimeout(() => {
+        hideTypingIndicator();
+        addBubble(raw, "bot");
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        setTimeout(renderStep, 500);
+      }, 500);
+    }
 
+    // USER INPUT
     else if (step.type === "userInput") {
-      // Show prompt as bot, then show a textarea + submit
       addBubble(step.prompt, "bot");
 
       const wrapper = document.createElement("div");
-
       const textarea = document.createElement("textarea");
       textarea.rows = 3;
       textarea.placeholder = "Type your response here...";
@@ -282,13 +392,12 @@ function hideTypingIndicator() {
         const value = textarea.value.trim();
         if (!value) return;
 
-        // Add user bubble
         addBubble(value, "user");
         state[step.id] = value;
 
-        // Clear input area and move to next step
         chatInputAreaEl.innerHTML = "";
-        currentStepIndex++;
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
         renderStep();
       });
 
@@ -297,8 +406,8 @@ function hideTypingIndicator() {
       chatInputAreaEl.appendChild(wrapper);
     }
 
+    // CHOICE
     else if (step.type === "choice") {
-      // Show prompt as bot, then buttons for choices
       addBubble(step.prompt, "bot");
 
       const wrapper = document.createElement("div");
@@ -310,12 +419,14 @@ function hideTypingIndicator() {
         btn.textContent = choiceText;
 
         btn.addEventListener("click", () => {
-          // When a choice is clicked, show it as a user bubble
           addBubble(choiceText, "user");
           state[step.id] = choiceText;
 
           chatInputAreaEl.innerHTML = "";
-          currentStepIndex++;
+          const nextIndex = getNextIndex(currentStepIndex, step, {
+            choiceValue: choiceText,
+          });
+          currentStepIndex = nextIndex;
           renderStep();
         });
 
@@ -324,98 +435,84 @@ function hideTypingIndicator() {
 
       chatInputAreaEl.appendChild(wrapper);
     }
-      else if (step.type === "llmInput") {
-  // Show prompt as bot
-  addBubble(step.prompt, "bot");
 
-  const wrapper = document.createElement("div");
+    // LLM INPUT (free-text step that calls LLM immediately)
+    else if (step.type === "llmInput") {
+      addBubble(step.prompt, "bot");
 
-  const textarea = document.createElement("textarea");
-  textarea.rows = 3;
-  textarea.placeholder = "Type your response here...";
+      const wrapper = document.createElement("div");
+      const textarea = document.createElement("textarea");
+      textarea.rows = 3;
+      textarea.placeholder = "Type your response here...";
 
-  const submitBtn = document.createElement("button");
-  submitBtn.textContent = "Submit";
-  submitBtn.className = "primary";
-  /*  below is new to next comment*/
-  submitBtn.addEventListener("click", async () => {
-  const value = textarea.value.trim();
-  if (!value) return;
+      const submitBtn = document.createElement("button");
+      submitBtn.textContent = "Submit";
+      submitBtn.className = "primary";
 
-  addBubble(value, "user");
-  state[step.id] = value;
-  chatInputAreaEl.innerHTML = "";
+      submitBtn.addEventListener("click", async () => {
+        const value = textarea.value.trim();
+        if (!value) return;
 
-  showTypingIndicator("Thinking about your response…");
+        addBubble(value, "user");
+        state[step.id] = value;
+        chatInputAreaEl.innerHTML = "";
 
-  const llmReply = await callLLM(value, step.endpoint);
+        showTypingIndicator("Thinking about your response…");
+        const llmReply = await callLLM(value, step.endpoint);
+        hideTypingIndicator();
 
-  hideTypingIndicator();
-  addBubble(llmReply, "bot");
+        addBubble(llmReply, "bot");
 
-  currentStepIndex++;
-  renderStep();
-});
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        renderStep();
+      });
 
-  // submitBtn.addEventListener("click", async () => {
-  //   const value = textarea.value.trim();
-  //   if (!value) return;
-
-  //   addBubble(value, "user");
-  //   state[step.id] = value;
-
-  //   chatInputAreaEl.innerHTML = "";
-
-  //   //  Call the model dynamically
-  //   const llmReply = await callLLM(value);
-
-  //   addBubble(llmReply, "bot");
-
-  //   currentStepIndex++;
-  //   renderStep();
-  // });
-
-  wrapper.appendChild(textarea);
-  wrapper.appendChild(submitBtn);
-  chatInputAreaEl.appendChild(wrapper);
-}
-else if (step.type === "llmBot") {
-  const sourceId = step.source;
-  const inputText = state[sourceId];
-
-  if (!inputText) {
-    addBubble("I don’t have enough information yet to respond.", "bot");
-    currentStepIndex++;
-    setTimeout(renderStep, 500);
-    return;
-  }
-
-  chatInputAreaEl.innerHTML = "";
-  showTypingIndicator();
-
-  (async () => {
-    const llmReply = await callLLM(inputText, step.endpoint);
-    hideTypingIndicator();
-
-    addBubble(llmReply, "bot");
-
-    if (step.id) {
-      state[step.id] = llmReply;
+      wrapper.appendChild(textarea);
+      wrapper.appendChild(submitBtn);
+      chatInputAreaEl.appendChild(wrapper);
     }
 
-    currentStepIndex++;
-    renderStep();
-  })();
-}
+    // LLM BOT (auto-call LLM using previous state[source])
+    else if (step.type === "llmBot") {
+      const sourceId = step.source;
+      const inputText = state[sourceId];
 
-    
+      if (!inputText) {
+        addBubble(
+          "I don’t have enough information yet to respond.",
+          "bot"
+        );
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        setTimeout(renderStep, 500);
+        return;
+      }
+
+      chatInputAreaEl.innerHTML = "";
+      showTypingIndicator();
+
+      (async () => {
+        const llmReply = await callLLM(inputText, step.endpoint);
+        hideTypingIndicator();
+
+        addBubble(llmReply, "bot");
+
+        if (step.id) {
+          state[step.id] = llmReply;
+        }
+
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        renderStep();
+      })();
+    }
   }
 
-
-        
-  // Kick off the scripted conversation when the page loads
+  // Kick off the scripted conversation
   renderStep();
 </script>
+
 
 
 </html>
