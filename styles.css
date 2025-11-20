@@ -23,7 +23,7 @@ body {
   background: #fafafa;
   margin: 1.5rem 0;
   height: auto;
-    max-height: calc(100vh - 180px);
+    max-height: calc(95vh - 180px);
     overflow-y: auto;
 }
 
