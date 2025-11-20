@@ -16,7 +16,7 @@ const SCRIPT_MH_INTAKE = [
     stepId: "focusChoice",
     branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath", "Anxiety": "anxietyPath", "Skip this": "final" },
     id: "focusArea",
-    prompt: `Which area feels most important to talk about first?`,
+    prompt: `Which area do you feel like talking about first?`,
     choices: ["Stress", "Sleep", "Depression", "Anxiety"],
   },
   {
