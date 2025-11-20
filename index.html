@@ -241,7 +241,7 @@ function hideTypingIndicator() {
     // }
       if (step.type === "bot") {
   const raw = (typeof step.text === "function" ? step.text(state) : step.text);
-  const text = injectState ? injectState(raw, state) : raw; // if you’re using injectState
+  //const text = injectState ? injectState(raw, state) : raw; // if you’re using injectState
 
   showTypingIndicator();
   chatInputAreaEl.innerHTML = "";
