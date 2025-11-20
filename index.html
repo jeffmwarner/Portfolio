@@ -179,13 +179,19 @@ const conversationScript = [
   let currentStepIndex = 0;
   const state = {}; // where we store user answers by id
 
-  function addBubble(text, role) {
-    const bubble = document.createElement("div");
-    bubble.className = `chat-bubble ${role}`;
-    bubble.textContent = text;
-    chatLogEl.appendChild(bubble);
-    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+function addBubble(text, role) {
+  // Don’t render empty or whitespace-only messages
+  if (text === undefined || text === null || !text.toString().trim()) {
+    return;
   }
+
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble ${role}`;
+  bubble.textContent = text;
+  chatLogEl.appendChild(bubble);
+  chatLogEl.scrollTop = chatLogEl.scrollHeight;
+}
+
 
 
 function injectState(template, state) {
@@ -196,7 +202,7 @@ function injectState(template, state) {
   });
 }
 
-  function renderStep() {
+function renderStep() {
   chatInputAreaEl.innerHTML = ""; // clear previous input area
 
   if (currentStepIndex >= conversationScript.length) {
@@ -218,7 +224,9 @@ function injectState(template, state) {
   else if (step.type === "userInput") {
     // Show prompt as bot, then show a textarea + submit
     const promptText = injectState(step.prompt || "", state);
-    addBubble(promptText, "bot");
+    if (promptText.trim()) {
+      addBubble(promptText, "bot");
+    }
 
     const wrapper = document.createElement("div");
 
@@ -252,7 +260,9 @@ function injectState(template, state) {
   else if (step.type === "choice") {
     // Show prompt as bot, then buttons for choices
     const promptText = injectState(step.prompt || "", state);
-    addBubble(promptText, "bot");
+    if (promptText.trim()) {
+      addBubble(promptText, "bot");
+    }
 
     const wrapper = document.createElement("div");
     wrapper.className = "choice-buttons";
