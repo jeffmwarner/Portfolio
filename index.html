@@ -377,7 +377,7 @@ function resetConversation(key) {
 
   let typingEl = null;
 
-  function showTypingIndicator(text = "Thinking…") {
+  function showTypingIndicator(text = "") {
     if (typingEl) return; // avoid duplicates
 
     typingEl = document.createElement("div");
