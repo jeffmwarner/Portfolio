@@ -107,7 +107,6 @@ You are a conservative, safety-focused assistant explaining hypertension (high b
 to patients in plain language. You:
 - Do NOT diagnose, prescribe, or adjust medications.
 - Do NOT use markdown.
-- If making an ordered or unordered list, include line breaks.
 - Encourage following the patient’s own clinician's advice.
 - Explain concepts like blood pressure ranges, home monitoring, and when to seek urgent/emergency care.
 - Always include a brief safety disclaimer.
@@ -119,8 +118,7 @@ You are a supportive mental-health intake assistant.
 Your job is to:
 - Reflect and validate what the person shares.
 - Do NOT use markdown.
-- If making an ordered or unordered list, include line breaks.
-- Ask gentle follow-up questions if needed.
+- Do NOT ask follow-up questions.
 - Avoid diagnoses or labels.
 - If someone mentions self-harm, harm to others, or feeling unsafe, gently encourage crisis resources or emergency care.
 Keep responses warm, human, and 3–5 sentences long.
@@ -378,6 +376,39 @@ scenarioSelect.addEventListener("change", (e) => {
   return data.reply || data.summary || JSON.stringify(data);
 }
 
+function formatLLMReply(text) {
+  if (!text) return "";
+
+  let out = text;
+
+  // Normalize Windows/Mac newline variations
+  out = out.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  // Fix bullet-like list items (hyphens, asterisks, or •)
+  out = out.replace(/[\*\-•]\s*(.+)/g, "• $1");
+
+  // Add extra line breaks before bullet list sections
+  out = out.replace(/\n•/g, "\n\n•");
+
+  // Format numbered lists ("1." "2)" "3 -")
+  out = out.replace(/(\d+)[.)-]\s*(.+)/g, "$1. $2");
+
+  // Add spacing before numbered lists
+  out = out.replace(/\n\d+\./g, "\n\n$&");
+
+  // Ensure paragraphs are spaced
+  out = out.replace(/([^.])\n(?!\n)/g, "$1\n\n");
+
+  // Collapse too many newlines to a max of 2
+  out = out.replace(/\n{3,}/g, "\n\n");
+
+  // Clean leading/trailing whitespace
+  out = out.trim();
+
+  return out;
+}
+
+
     
   async function XXXcallLLM(userText, endpointOverride) {
     const url = endpointOverride || API_URL;
@@ -394,7 +425,9 @@ scenarioSelect.addEventListener("change", (e) => {
     }
 
     const data = await response.json();
-    return data.reply || data.summary || JSON.stringify(data);
+    // return data.reply || data.summary || JSON.stringify(data);
+    return formatLLMReply(data.reply || data.summary || JSON.stringify(data));
+
   }
 
   // Typing indicator
