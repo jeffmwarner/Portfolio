@@ -492,75 +492,86 @@ function resetConversation(key) {
 
     // LLM INPUT (free-text step that calls LLM immediately)
     else if (step.type === "llmInput") {
-      addBubble(step.prompt, "bot");
+  addBubble(step.prompt, "bot");
 
-      const wrapper = document.createElement("div");
-      const textarea = document.createElement("textarea");
-      textarea.rows = 3;
-      textarea.placeholder = "Type your response here...";
+  const wrapper = document.createElement("div");
+  const textarea = document.createElement("textarea");
+  textarea.rows = 3;
+  textarea.placeholder = "Type your response here...";
 
-      const submitBtn = document.createElement("button");
-      submitBtn.textContent = "Submit";
-      submitBtn.className = "primary";
+  const submitBtn = document.createElement("button");
+  submitBtn.textContent = "Submit";
+  submitBtn.className = "primary";
 
-      submitBtn.addEventListener("click", async () => {
-        const value = textarea.value.trim();
-        if (!value) return;
+  submitBtn.addEventListener("click", async () => {
+    const value = textarea.value.trim();
+    if (!value) return;
 
-        addBubble(value, "user");
-        state[step.id] = value;
-        chatInputAreaEl.innerHTML = "";
+    addBubble(value, "user");
+    state[step.id] = value;
+    chatInputAreaEl.innerHTML = "";
 
-        showTypingIndicator("Thinking about your response…");
-        const llmReply = await callLLM(value, step.endpoint);
-        hideTypingIndicator();
+    showTypingIndicator("Thinking about your response…");
 
-        addBubble(llmReply, "bot");
+    const profileKey = step.llmProfile || activeLLMProfile || "default";
+    const systemPrompt = LLM_PROFILES[profileKey];
 
-        const nextIndex = getNextIndex(currentStepIndex, step);
-        currentStepIndex = nextIndex;
-        renderStep();
-      });
+    const llmReply = await callLLM(value, {
+      endpoint: step.endpoint,
+      systemPrompt,
+    });
 
-      wrapper.appendChild(textarea);
-      wrapper.appendChild(submitBtn);
-      chatInputAreaEl.appendChild(wrapper);
-    }
+    hideTypingIndicator();
+    addBubble(llmReply, "bot");
+
+    const nextIndex = getNextIndex(currentStepIndex, step);
+    currentStepIndex = nextIndex;
+    renderStep();
+  });
+
+  wrapper.appendChild(textarea);
+  wrapper.appendChild(submitBtn);
+  chatInputAreaEl.appendChild(wrapper);
+}
 
     // LLM BOT (auto-call LLM using previous state[source])
     else if (step.type === "llmBot") {
-      const sourceId = step.source;
-      const inputText = state[sourceId];
+  const sourceId = step.source;
+  const inputText = state[sourceId];
 
-      if (!inputText) {
-        addBubble(
-          "I don’t have enough information yet to respond.",
-          "bot"
-        );
-        const nextIndex = getNextIndex(currentStepIndex, step);
-        currentStepIndex = nextIndex;
-        setTimeout(renderStep, 500);
-        return;
-      }
+  if (!inputText) {
+    addBubble("I don’t have enough information yet to respond.", "bot");
+    const nextIndex = getNextIndex(currentStepIndex, step);
+    currentStepIndex = nextIndex;
+    setTimeout(renderStep, 500);
+    return;
+  }
 
-      chatInputAreaEl.innerHTML = "";
-      showTypingIndicator();
+  chatInputAreaEl.innerHTML = "";
+  showTypingIndicator();
 
-      (async () => {
-        const llmReply = await callLLM(inputText, step.endpoint);
-        hideTypingIndicator();
+  (async () => {
+    const profileKey = step.llmProfile || activeLLMProfile || "default";
+    const systemPrompt = LLM_PROFILES[profileKey];
 
-        addBubble(llmReply, "bot");
+    const llmReply = await callLLM(inputText, {
+      endpoint: step.endpoint,
+      systemPrompt,
+    });
 
-        if (step.id) {
-          state[step.id] = llmReply;
-        }
+    hideTypingIndicator();
+    addBubble(llmReply, "bot");
 
-        const nextIndex = getNextIndex(currentStepIndex, step);
-        currentStepIndex = nextIndex;
-        renderStep();
-      })();
+    if (step.id) {
+      state[step.id] = llmReply;
     }
+
+    const nextIndex = getNextIndex(currentStepIndex, step);
+    currentStepIndex = nextIndex;
+    renderStep();
+  })();
+}
+
   }
 
   // Kick off the scripted conversation
