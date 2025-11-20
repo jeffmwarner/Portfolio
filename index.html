@@ -205,7 +205,7 @@ async function callLLM(userText) {
 
         let typingEl = null;
 
-function showTypingIndicator(text = "Thinking…") {
+function showTypingIndicator(text = "") {
   // Avoid duplicates
   if (typingEl) return;
 
@@ -391,7 +391,7 @@ else if (step.type === "llmBot") {
   }
 
   chatInputAreaEl.innerHTML = "";
-  showTypingIndicator("Thinking…");
+  showTypingIndicator();
 
   (async () => {
     const llmReply = await callLLM(inputText, step.endpoint);
