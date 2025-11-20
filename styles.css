@@ -244,7 +244,7 @@
   max-width: 80%;
   line-height: 1.4;
   font-size: 0.95rem;
-  box-shadow: offset-x offset-y blur-radius spread-radius color;
+  box-shadow: 3px 3px 5px 5px #545454;
 }
 
 .chat-bubble.bot {
@@ -257,6 +257,28 @@
   align-self: flex-end;
   background: #d1f3d0;
   color: #123;
+}
+
+/* Tiny tails (optional but nice)
+.chat-bubble.bot::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-radius: 50%;
+}
+.chat-bubble.user::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-radius: 50%;
 }
 
 .chat-input-area {
