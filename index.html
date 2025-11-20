@@ -49,6 +49,7 @@ function rebuildStepIndex() {
   });
 }
 
+  const chatContainerEl = document.getElementById("scripted-chat");
     
   let activeLLMProfile = 'default';
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
@@ -347,12 +348,33 @@ scenarioSelect.addEventListener("change", (e) => {
   const state = {};
 
   function addBubble(text, role) {
-    const bubble = document.createElement("div");
-    bubble.className = `chat-bubble ${role}`;
-    bubble.textContent = text;
-    chatLogEl.appendChild(bubble);
-    chatLogEl.scrollTop = chatLogEl.scrollHeight;
-  }
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble ${role}`;
+  bubble.textContent = text;
+  chatLogEl.appendChild(bubble);
+
+  requestAnimationFrame(() => {
+    bubble.scrollIntoView({ behavior: "smooth", block: "end" });
+  });
+
+  // Scroll to bottom of the scrollable container
+/*  requestAnimationFrame(() => {
+    if (chatContainerEl) {
+      chatContainerEl.scrollTop = chatContainerEl.scrollHeight;
+    } else {
+      // fallback if #chat-log is the scroller in some layouts
+      chatLogEl.scrollTop = chatLogEl.scrollHeight;
+    }
+  }); */
+}
+  
+  // function addBubble(text, role) {
+  //   const bubble = document.createElement("div");
+  //   bubble.className = `chat-bubble ${role}`;
+  //   bubble.textContent = text;
+  //   chatLogEl.appendChild(bubble);
+  //   chatLogEl.scrollTop = chatLogEl.scrollHeight;
+  // }
 
 //   async function callLLM(userText, options = {}) {
 //   const { endpoint, systemPrompt } = options;
