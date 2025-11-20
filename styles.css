@@ -120,21 +120,36 @@
 
 .choice-buttons {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   flex-wrap: wrap;
+  margin: 20px 0;
 }
 
 .choice-buttons button {
   background: #f0f0f0;
-  border-radius: 16px;
-  padding: 0.3rem 0.8rem;
-  border: 1px solid #ccc;
+  border: 1px solid #c7d2fe;
+  color: #1e3a8a;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  
   p
 }
 
 .choice-buttons button:hover {
-  background: #e2e2e2;
+  background: #e0e7ff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 } 
+
+.choice-buttons button:active {
+  background: #c7d2fe;
+  transform: translateY(1px);
+}
 
 .typing-indicator {
   display: inline-flex;
