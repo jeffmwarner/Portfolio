@@ -275,6 +275,18 @@ const AAAconversationScript = [
     },
   ];
 
+    function scrollChatToBottom() {
+  requestAnimationFrame(() => {
+    const container = document.getElementById("scripted-chat");
+    if (!container) return;
+    // container.scrollTop = container.scrollHeight;
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth"          
+      });
+  });
+}
+
 function resetConversation(key) {
   const scenario = SCENARIOS[key];
   if (!scenario) return;
@@ -347,15 +359,15 @@ scenarioSelect.addEventListener("change", (e) => {
   let currentStepIndex = 0;
   const state = {};
 
-  function addBubble(text, role) {
+function addBubble(text, role) {
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble ${role}`;
   bubble.textContent = text;
+
   chatLogEl.appendChild(bubble);
 
-  requestAnimationFrame(() => {
-    bubble.scrollIntoView({ behavior: "smooth", block: "end" });
-  });
+  scrollChatToBottom();
+}
 
   // Scroll to bottom of the scrollable container
 /*  requestAnimationFrame(() => {
@@ -594,6 +606,7 @@ function XXXformatLLMReply(text) {
       wrapper.appendChild(textarea);
       wrapper.appendChild(submitBtn);
       chatInputAreaEl.appendChild(wrapper);
+      scrollChatToBottom();
     }
 
     // CHOICE
@@ -624,6 +637,7 @@ function XXXformatLLMReply(text) {
       });
 
       chatInputAreaEl.appendChild(wrapper);
+      scrollChatToBottom();
     }
 
     // LLM INPUT (free-text step that calls LLM immediately)
@@ -659,6 +673,7 @@ function XXXformatLLMReply(text) {
 
     hideTypingIndicator();
     addBubble(llmReply, "bot");
+    scrollChatToBottom();
 
     const nextIndex = getNextIndex(currentStepIndex, step);
     currentStepIndex = nextIndex;
@@ -668,6 +683,7 @@ function XXXformatLLMReply(text) {
   wrapper.appendChild(textarea);
   wrapper.appendChild(submitBtn);
   chatInputAreaEl.appendChild(wrapper);
+  scrollChatToBottom();
 }
 
     // LLM BOT (auto-call LLM using previous state[source])
