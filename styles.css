@@ -1,7 +1,7 @@
 .chat-container, 
 .chat-bubble, 
 .choice-buttons button, 
-#chatInputArea, 
+#chat-input-area, 
 body {
     font-family: "Calibri", "Segoe UI", Roboto, system-ui, sans-serif;
 }
@@ -122,20 +122,20 @@ body {
 } */
 
 /* Container that holds the textarea + button */
-#chatInputArea {
+#chat-input-area {
   border-top: 1px solid #e5e7eb;
   padding: 12px 16px 16px;
   background: #f9fafb;
 }
 
 /* Align textarea + button nicely */
-#chatInputArea > div {
+#chat-input-area > div {
   display: flex;
   align-items: flex-end;
   gap: 12px;
 }
 
-#chatInputArea textarea {
+#chat-input-area textarea {
   flex: 1;
   min-height: 56px;
   max-height: 140px;       /* content scrolls after this */
