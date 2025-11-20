@@ -121,6 +121,35 @@ body {
   font-size: 0.9rem;
 } */
 
+/* Container that holds the textarea + button */
+#chatInputArea {
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px 16px;
+  background: #f9fafb;
+}
+
+/* Align textarea + button nicely */
+#chatInputArea > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+#chatInputArea textarea {
+  flex: 1;
+  min-height: 56px;
+  max-height: 140px;       /* content scrolls after this */
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: none;            /* ⬅️ user can’t drag-resize */
+  overflow-y: auto;        /* ⬅️ scrolls internally on long text */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
+}
+
+
 .chat-input-area button.primary {
   background: #4a90e2;
   color: white;
