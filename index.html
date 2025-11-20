@@ -354,7 +354,29 @@ scenarioSelect.addEventListener("change", (e) => {
     chatLogEl.scrollTop = chatLogEl.scrollHeight;
   }
 
-  async function callLLM(userText, options = {}) {
+//   async function callLLM(userText, options = {}) {
+//   const { endpoint, systemPrompt } = options;
+//   const url = endpoint || API_URL;
+
+//   const response = await fetch(url, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       message: userText,
+//       systemPrompt: systemPrompt || undefined, // omit if not provided
+//     }),
+//   });
+
+//   if (!response.ok) {
+//     console.error("LLM error:", await response.text());
+//     return "Sorry, I’m having trouble responding right now.";
+//   }
+
+//   const data = await response.json();
+//   return data.reply || data.summary || JSON.stringify(data);
+// }
+
+async function callLLM(userText, options = {}) {
   const { endpoint, systemPrompt } = options;
   const url = endpoint || API_URL;
 
@@ -363,7 +385,7 @@ scenarioSelect.addEventListener("change", (e) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message: userText,
-      systemPrompt: systemPrompt || undefined, // omit if not provided
+      systemPrompt: systemPrompt || undefined,
     }),
   });
 
@@ -373,8 +395,11 @@ scenarioSelect.addEventListener("change", (e) => {
   }
 
   const data = await response.json();
-  return data.reply || data.summary || JSON.stringify(data);
+  const raw = data.reply || data.summary || JSON.stringify(data);
+
+  return formatLLMReply(raw);
 }
+
 
 function formatLLMReply(text) {
   if (!text) return "";
