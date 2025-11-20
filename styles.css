@@ -22,31 +22,48 @@
   gap: 0.5rem;
   max-height: 400px;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding: 30px;
+  padding-bottom: 60px;
+  /* padding-right: 0.5rem; */
 }
 
-.chat-bubble {
+/* .chat-bubble {
   display: inline-block;
   padding: 0.6rem 0.9rem;
   border-radius: 16px;
   max-width: 80%;
   line-height: 1.4;
   font-size: 0.95rem;
-  
+} */
+
+.chat-bubble + .chat-bubble {
+  margin-top: 12px;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  font-size: 0.95rem;
+  line-height: 1.3rem;
+
+  /* This fixes clipping inside flex containers */
+  position: relative;
 }
 
 .chat-bubble.bot {
   align-self: flex-start;
   background: #e6f0ff;
   color: #123;
-  filter: drop-shadow(13px 29px 21px #545454);
+  filter: drop-shadow(0px 8px 18px #545454);
 }
 
 .chat-bubble.user {
   align-self: flex-end;
   background: #d1f3d0;
   color: #123;
-  filter: drop-shadow(-13px 29px 21px #545454);
+  filter: drop-shadow(0px 8px 18px #545454);
 }
 
 /* Tiny tails (optional but nice)
