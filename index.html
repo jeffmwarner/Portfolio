@@ -400,8 +400,40 @@ async function callLLM(userText, options = {}) {
   return formatLLMReply(raw);
 }
 
-
 function formatLLMReply(text) {
+  if (!text) return "";
+
+  let out = text;
+
+  // Normalize newlines
+  out = out.replace(/\r\n?/g, "\n");
+
+  // If the model shoves bullets right after a colon:
+  // "ranges: • Normal..." -> "ranges:\n\n• Normal..."
+  out = out.replace(/:\s*([\-*•])\s*/g, ':\n\n$1 ');
+
+  // Convert hyphen/asterisk bullets at the start of a line into •
+  // "- something" or "* something" -> "• something"
+  out = out.replace(/^[\-\*]\s+/gm, "• ");
+
+  // If a bullet appears mid-line without a newline before it,
+  // insert a line break: "mmHg • Normal" -> "mmHg\n• Normal"
+  out = out.replace(/([^.\n])\s+•\s+/g, "$1\n• ");
+
+  // Add a blank line before blocks of bullets if they follow text
+  out = out.replace(/([^.:\n])\n(• )/g, "$1\n\n$2");
+
+  // Collapse too many newlines (3+ → 2)
+  out = out.replace(/\n{3,}/g, "\n\n");
+
+  // Trim extra whitespace
+  out = out.trim();
+
+  return out;
+}
+
+
+function XXXformatLLMReply(text) {
   if (!text) return "";
 
   let out = text;
