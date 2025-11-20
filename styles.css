@@ -20,13 +20,13 @@
 }
 
 /* Optional: page background if you want full vibe */
-body {
+/* body {
   background: radial-gradient(circle at top, #1e293b 0, #020617 60%);
   color: var(--text-main);
-}
+} */
 
 /* Chat container */
-.chat-container {
+/* .chat-container {
   border-radius: 18px;
   padding: 1.25rem 1.5rem;
   max-width: 760px;
@@ -36,10 +36,10 @@ body {
     0 18px 40px rgba(15, 23, 42, 0.8),
     0 0 0 1px rgba(148, 163, 184, 0.35);
   backdrop-filter: blur(20px);
-}
+} */
 
 /* Chat log */
-#chat-log {
+/* #chat-log {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -47,10 +47,10 @@ body {
   overflow-y: auto;
   padding-right: 0.5rem;
   margin-bottom: 0.75rem;
-}
+} */
 
 /* Custom scrollbar (optional but pretty) */
-#chat-log::-webkit-scrollbar {
+/* #chat-log::-webkit-scrollbar {
   width: 6px;
 }
 #chat-log::-webkit-scrollbar-track {
@@ -59,10 +59,10 @@ body {
 #chat-log::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.6);
   border-radius: 999px;
-}
+} */
 
 /* Bubbles */
-.chat-bubble {
+/* .chat-bubble {
   display: inline-block;
   padding: 0.65rem 0.95rem;
   border-radius: 18px;
@@ -71,14 +71,14 @@ body {
   font-size: 0.95rem;
   position: relative;
   animation: chat-pop 0.18s ease-out;
-}
+} */
 
 /* .chat-bubble.bot {
   align-self: flex-start;
   background: radial-gradient(circle at top left, #1d2537, #020617);
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
-} */
+} 
 
 .chat-bubble.bot {
   align-self: flex-start;
@@ -94,7 +94,7 @@ body {
   box-shadow: 0 8px 18px rgba(22, 163, 74, 0.45);
 }
 
-/* Tiny tails (optional but nice) */
+/* Tiny tails (optional but nice)
 .chat-bubble.bot::after {
   content: "";
   position: absolute;
@@ -116,7 +116,7 @@ body {
   border-radius: 50%;
 }
 
-/* Input area */
+/* Input area 
 .chat-input-area {
   border-top: 1px solid rgba(148, 163, 184, 0.4);
   padding-top: 0.75rem;
@@ -146,7 +146,7 @@ body {
   background: rgba(15, 23, 42, 0.95);
 }
 
-/* Buttons */
+/* Buttons 
 .chat-input-area button {
   margin-top: 0.5rem;
   padding: 0.45rem 0.95rem;
@@ -176,7 +176,7 @@ body {
   box-shadow: 0 5px 10px rgba(79, 70, 229, 0.35);
 }
 
-/* Choice pills */
+/* Choice pills 
 .choice-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -205,7 +205,7 @@ body {
   transform: translateY(0);
 }
 
-/* Tiny bubble pop animation */
+/* Tiny bubble pop animation
 @keyframes chat-pop {
   from {
     transform: translateY(4px) scale(0.97);
