@@ -7,6 +7,9 @@
     <title>Symptom Triage</title>
 <link rel="stylesheet" type="text/css" href="/Portfolio/styles.css">
 </head>
+<script src="/Portfolio/scripts/hypertension.js"></script>
+<script src="/Portfolio/scripts/mh_intake.js"></script>
+
 <!-- <h2>Try a Sample Mental Health Intake Prompt</h2>
 <div>
   <textarea id="userInput" rows="4" placeholder="Tell me a bit about how you're feeling today..."></textarea>
@@ -17,18 +20,19 @@
 
 <h2>Scripted Conversation Flow Demo</h2>
 <p>
-  This example shows a predetermined hypertension flow with assistant and user messages.
+  This example shows different scripted flows. Choose one to try:
 </p>
+
+<label for="scenarioSelect"><strong>Choose a scenario:</strong></label>
+<select id="scenarioSelect">
+  <option value="hypertension">Hypertension education</option>
+  <option value="mh_intake">Mental health intake (therapy)</option>
+</select>
 
 <div id="scripted-chat" class="chat-container">
   <div id="chat-log"></div>
-
-  <!-- Dynamic input area (text or choices appear here when needed) -->
-  <div id="chat-input-area" class="chat-input-area">
-    <!-- Filled by JS depending on the current step -->
-  </div>
+  <div id="chat-input-area" class="chat-input-area"></div>
 </div>
-
 
 <script>
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
@@ -75,8 +79,13 @@
   
 
   // --- Predetermined conversation script with optional routing fields ---
-
-const conversationScript = [
+const SCENARIOS = {
+    hypertension: SCRIPT_HYPERTENSION,
+    mh_intake: SCRIPT_MH_INTAKE,
+};
+    
+const conversationScript = SCENARIOS.hypertension
+const STATICconversationScript = [
   {
     type: "bot",
     stepId: "intro1",
@@ -169,10 +178,7 @@ const conversationScript = [
   },
 ];
 
-
-
-    
-  const AAAconversationScript = [
+const AAAconversationScript = [
     {
       type: "bot",
       stepId: "intro1",
@@ -214,138 +220,30 @@ const conversationScript = [
       // endpoint: "/api/chat",   // optional override (defaults to API_URL)
     },
   ];
+const scenarioSelect = document.getElementById("scenarioSelect");
 
-  // Optional experimental scripts you had before (kept for reference)
-  const ZZZconversationScript = [
-    {
-      type: "bot",
-      text: "Hi, I'm here to help you get connected with care.",
-    },
-    {
-      type: "llmInput",
-      id: "presentingConcern",
-      prompt:
-        "To start, what's the main thing you're hoping to get support with right now?",
-    },
-    {
-      type: "choice",
-      id: "focusArea",
-      prompt:
-        "If you had to choose one area to focus on first, which feels most important?",
-      choices: ["Managing anxiety or stress", "Sleep problems", "Depression"],
-    },
-    {
-      type: "choice",
-      id: "button",
-      prompt: "Got it! We'll keep that in mind as a starting point.",
-      choices: ["Thanks"],
-    },
-  ];
+scenarioSelect.addEventListener("change", (e) => {
+  const key = e.target.value;
+  resetConversation(key);
+});
 
-  const YYYconversationScript = [
-    {
-      type: "bot",
-      text: "Hi, I'm here to help you get connected with care.",
-    },
-    {
-      type: "userInput",
-      id: "presentingConcern",
-      prompt:
-        "To start, what's the main thing you're hoping to get support with right now?",
-    },
-    {
-      type: "bot",
-      text: "Thank you for sharing that. That sounds really important.",
-    },
-    {
-      type: "choice",
-      id: "focusArea",
-      prompt:
-        "If you had to choose one area to focus on first, which feels most important?",
-      choices: ["Managing anxiety or stress", "Sleep problems", "Depression"],
-    },
-    {
-      type: "userInput",
-      id: "button",
-      prompt:
-        "Got it! We'll keep that in mind as a starting point. {{focusArea}} is an important topic.",
-    },
-  ];
 
-  const XXXconversationScript = [
-    {
-      type: "bot",
-      text: "Hi, I'm here to help you get connected with care. I'll ask a few quick questions to better understand what you need.",
-    },
-    {
-      type: "userInput",
-      id: "presentingConcern",
-      prompt:
-        "To start, what’s the main thing you’re hoping to get support with right now?",
-    },
-    {
-      type: "bot",
-      text: (state) => {
-        return `Thank you for sharing that. It sounds like you're dealing with: “${state.presentingConcern}”. That’s a lot to carry.`;
-      },
-    },
-    {
-      type: "choice",
-      id: "focusArea",
-      prompt:
-        "If you had to choose one area to focus on first, which feels most important?",
-      choices: [
-        "Managing anxiety or stress",
-        "Mood / depression",
-        "Sleep problems",
-        "Relationships and boundaries",
-        "I’m not sure yet",
-      ],
-    },
-    {
-      type: "bot",
-      text: (state) => {
-        return `Got it. We'll keep “${state.focusArea}” in mind as a starting point.`;
-      },
-    },
-    {
-      type: "userInput",
-      id: "timeline",
-      prompt: "How long have you been dealing with this, roughly?",
-    },
-    {
-      type: "bot",
-      text: (state) => {
-        return `Thanks. Knowing that this has been going on for about ${state.timeline} helps give context.`;
-      },
-    },
-    {
-      type: "choice",
-      id: "nextStep",
-      prompt: "What feels like the next most helpful step?",
-      choices: [
-        "Explore matching with a therapist",
-        "Learn more about what therapy is like",
-        "See coping strategies I can try on my own first",
-      ],
-    },
-    {
-      type: "bot",
-      text: (state) => {
-        if (state.nextStep.includes("matching")) {
-          return "Great. Based on what you’ve shared, we’d guide you toward a therapist who has experience with similar concerns and preferences.";
-        } else if (state.nextStep.includes("therapy is like")) {
-          return "Totally fair. Many people want to understand what to expect before starting. We’d walk you through what sessions typically look like and how to find a good fit.";
-        } else {
-          return "That makes sense. Sometimes starting with small, concrete coping strategies can make the idea of therapy feel more approachable later.";
-        }
-      },
-    },
-    {
-      type: "bot",
-      text: "This is just a short demo, but this kind of flow can be extended into a full intake or guidance experience.",
-    },
-  ];
+   function resetConversation(scriptKey) {
+  conversationScript = SCENARIOS[scriptKey];
+
+  // Clear UI
+  chatLogEl.innerHTML = "";
+  chatInputAreaEl.innerHTML = "";
+
+  // Reset state
+  currentStepIndex = 0;
+  for (const k of Object.keys(state)) {
+    delete state[k];
+  }
+
+  // Kick off first step
+  renderStep();
+}
 
   // --- Build stepId -> index map for branching ---
   const stepIndexById = {};
@@ -606,7 +504,8 @@ const conversationScript = [
   }
 
   // Kick off the scripted conversation
-  renderStep();
+  //renderStep();
+    resetConversation("hypertension");
 </script>
 
 
