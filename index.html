@@ -248,7 +248,7 @@ function hideTypingIndicator() {
 
   setTimeout(() => {
     hideTypingIndicator();
-    addBubble(text, "bot");
+    addBubble(raw, "bot");
     currentStepIndex++;
     setTimeout(renderStep, 500);
   }, 500); // 0.5s “thinking”
