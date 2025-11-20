@@ -104,14 +104,14 @@
   resize: vertical;
 }
 
-.chat-input-area button {
+/* .chat-input-area button {
   margin-top: 0.5rem;
   padding: 0.4rem 0.9rem;
   border-radius: 6px;
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
-}
+} */
 
 .chat-input-area button.primary {
   background: #4a90e2;
@@ -126,7 +126,7 @@
   margin: 20px 0;
 }
 
-.choice-buttons button {
+.choice-buttons button, .chat-input-area button {
   background: #f0f0f0;
   border: 1px solid #c7d2fe;
   color: #1e3a8a;
