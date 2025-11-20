@@ -1,4 +1,4 @@
-const conversationScript = [
+const SCRIPT_HYPERTENSION = [
   {
     type: "bot",
     stepId: "intro1",
