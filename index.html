@@ -193,6 +193,33 @@ async function callLLM(userText) {
   return data.reply || data.summary || JSON.stringify(data);
 }
 
+        let typingEl = null;
+
+function showTypingIndicator(text = "Thinking…") {
+  // Avoid duplicates
+  if (typingEl) return;
+
+  typingEl = document.createElement("div");
+  typingEl.className = "chat-bubble bot"; // reuse your bot bubble styling
+  typingEl.innerHTML = `
+    <div class="typing-indicator">
+      <span>${text}</span>
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  `;
+  chatLogEl.appendChild(typingEl);
+  chatLogEl.scrollTop = chatLogEl.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  if (typingEl && typingEl.parentNode) {
+    typingEl.parentNode.removeChild(typingEl);
+  }
+  typingEl = null;
+}
+
 
         
   function renderStep() {
@@ -205,13 +232,27 @@ async function callLLM(userText) {
 
     const step = conversationScript[currentStepIndex];
 
-    if (step.type === "bot") {
-      const text = typeof step.text === "function" ? step.text(state) : step.text;
-      addBubble(text, "bot");
-      currentStepIndex++;
-      // Automatically move to next step after a short delay
-      setTimeout(renderStep, 700);
-    }
+    // if (step.type === "bot") {
+    //   const text = typeof step.text === "function" ? step.text(state) : step.text;
+    //   addBubble(text, "bot");
+    //   currentStepIndex++;
+    //   // Automatically move to next step after a short delay
+    //   setTimeout(renderStep, 700);
+    // }
+      if (step.type === "bot") {
+  const raw = (typeof step.text === "function" ? step.text(state) : step.text);
+  const text = injectState ? injectState(raw, state) : raw; // if you’re using injectState
+
+  showTypingIndicator();
+  chatInputAreaEl.innerHTML = "";
+
+  setTimeout(() => {
+    hideTypingIndicator();
+    addBubble(text, "bot");
+    currentStepIndex++;
+    setTimeout(renderStep, 500);
+  }, 500); // 0.5s “thinking”
+}
 
     else if (step.type === "userInput") {
       // Show prompt as bot, then show a textarea + submit
@@ -286,32 +327,81 @@ async function callLLM(userText) {
   const submitBtn = document.createElement("button");
   submitBtn.textContent = "Submit";
   submitBtn.className = "primary";
-
+  /*  below is new to next comment*/
   submitBtn.addEventListener("click", async () => {
-    const value = textarea.value.trim();
-    if (!value) return;
+  const value = textarea.value.trim();
+  if (!value) return;
 
-    addBubble(value, "user");
-    state[step.id] = value;
+  addBubble(value, "user");
+  state[step.id] = value;
+  chatInputAreaEl.innerHTML = "";
 
-    chatInputAreaEl.innerHTML = "";
+  showTypingIndicator("Thinking about your response…");
 
-    //  Call the model dynamically
-    const llmReply = await callLLM(value);
+  const llmReply = await callLLM(value, step.endpoint);
 
-    addBubble(llmReply, "bot");
+  hideTypingIndicator();
+  addBubble(llmReply, "bot");
 
-    currentStepIndex++;
-    renderStep();
-  });
+  currentStepIndex++;
+  renderStep();
+});
+
+  // submitBtn.addEventListener("click", async () => {
+  //   const value = textarea.value.trim();
+  //   if (!value) return;
+
+  //   addBubble(value, "user");
+  //   state[step.id] = value;
+
+  //   chatInputAreaEl.innerHTML = "";
+
+  //   //  Call the model dynamically
+  //   const llmReply = await callLLM(value);
+
+  //   addBubble(llmReply, "bot");
+
+  //   currentStepIndex++;
+  //   renderStep();
+  // });
 
   wrapper.appendChild(textarea);
   wrapper.appendChild(submitBtn);
   chatInputAreaEl.appendChild(wrapper);
 }
+else if (step.type === "llmBot") {
+  const sourceId = step.source;
+  const inputText = state[sourceId];
+
+  if (!inputText) {
+    addBubble("I don’t have enough information yet to respond.", "bot");
+    currentStepIndex++;
+    setTimeout(renderStep, 500);
+    return;
+  }
+
+  chatInputAreaEl.innerHTML = "";
+  showTypingIndicator("Thinking…");
+
+  (async () => {
+    const llmReply = await callLLM(inputText, step.endpoint);
+    hideTypingIndicator();
+
+    addBubble(llmReply, "bot");
+
+    if (step.id) {
+      state[step.id] = llmReply;
+    }
+
+    currentStepIndex++;
+    renderStep();
+  })();
+}
 
     
   }
+
+
         
   // Kick off the scripted conversation when the page loads
   renderStep();
