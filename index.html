@@ -25,6 +25,7 @@
 
 <label for="scenarioSelect"><strong>Choose a scenario:</strong></label>
 <select id="scenarioSelect">
+  <option value=""></option>
   <option value="hypertension">Hypertension education</option>
   <option value="mh_intake">Mental health intake (therapy)</option>
 </select>
@@ -36,6 +37,19 @@
 
 <script>
   let conversationScript = [];
+
+  let stepIndexById = {};
+
+function rebuildStepIndex() {
+  stepIndexById = {};
+  conversationScript.forEach((step, index) => {
+    if (step.stepId) {
+      stepIndexById[step.stepId] = index;
+    }
+  });
+}
+
+    
   let activeLLMProfile = 'default';
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
 
@@ -257,13 +271,6 @@ const AAAconversationScript = [
       // endpoint: "/api/chat",   // optional override (defaults to API_URL)
     },
   ];
-const scenarioSelect = document.getElementById("scenarioSelect");
-
-scenarioSelect.addEventListener("change", (e) => {
-  const key = e.target.value;
-  resetConversation(key);
-});
-
 
 function resetConversation(key) {
   const scenario = SCENARIOS[key];
@@ -272,9 +279,14 @@ function resetConversation(key) {
   conversationScript = scenario.script;
   activeLLMProfile = scenario.llmProfile || "default";
 
-  // reset UI + state
+  // 🧠 rebuild stepId → index map for THIS script
+  rebuildStepIndex();
+
+  // Reset UI
   chatLogEl.innerHTML = "";
   chatInputAreaEl.innerHTML = "";
+
+  // Reset state
   currentStepIndex = 0;
   for (const k of Object.keys(state)) delete state[k];
 
@@ -282,13 +294,21 @@ function resetConversation(key) {
 }
 
 
+const scenarioSelect = document.getElementById("scenarioSelect");
+
+scenarioSelect.addEventListener("change", (e) => {
+  const key = e.target.value;
+  resetConversation(key);
+});
+
+
   // --- Build stepId -> index map for branching ---
-  const stepIndexById = {};
-  conversationScript.forEach((step, index) => {
-    if (step.stepId) {
-      stepIndexById[step.stepId] = index;
-    }
-  });
+  // let stepIndexById = {};
+  // conversationScript.forEach((step, index) => {
+  //   if (step.stepId) {
+  //     stepIndexById[step.stepId] = index;
+  //   }
+  // });
 
   function getNextIndex(currentIndex, step, options = {}) {
     const { choiceValue } = options;
