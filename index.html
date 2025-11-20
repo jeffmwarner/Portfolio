@@ -81,7 +81,7 @@ const conversationScript = [
     type: "bot",
     stepId: "intro1",
     next: "intro2",
-    text: `Hi there Ñ IÕm here to help you get connected with care.`,
+    text: `Hi there! I'm here to help you get connected with care.`,
   },
   {
     type: "bot",
@@ -92,7 +92,7 @@ const conversationScript = [
   {
     type: "choice",
     stepId: "focusChoice",
-    branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath" },
+    branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath", "Anxiety": "anxietyPath" },
     id: "focusArea",
     prompt: `Which area feels most important to talk about first?`,
     choices: ["Stress", "Sleep", "Depression", "Anxiety"],
@@ -101,7 +101,7 @@ const conversationScript = [
     type: "bot",
     stepId: "stressPath",
     next: "stressLLM",
-    text: `LetÕs talk through stress first.`,
+    text: `Let's talk through stress first.`,
   },
   {
     type: "llmBot",
@@ -127,7 +127,7 @@ const conversationScript = [
     type: "bot",
     stepId: "depressionPath",
     next: "depLLM",
-    text: `Thanks for bringing up depression Ñ thatÕs important.`,
+    text: `Thanks for bringing up depression, thatÕs a really important topic.`,
   },
   {
     type: "llmBot",
@@ -168,6 +168,7 @@ const conversationScript = [
     text: `Thanks! This is only a short demo, but this framework scales to a full intake experience.`,
   },
 ];
+
 
     
   const AAAconversationScript = [
