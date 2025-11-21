@@ -449,9 +449,48 @@ async function callLLM(userText, options = {}) {
 
   const data = await response.json();
   const raw = data.reply || data.summary || JSON.stringify(data);
-
-  return formatLLMReply(raw);
+  const formatted = formatLLMReply(raw);
+  //return formatLLMReply(raw);
+  return splitIntoBubbles(formatted);
 }
+
+  function splitIntoBubbles(text) {
+  if (!text) return [];
+
+  // Split on blank lines into "paragraphs"
+  const paragraphs = text.split(/\n\s*\n/);
+
+  const bubbles = [];
+  let currentGroup = [];
+
+  paragraphs.forEach((p) => {
+    const trimmed = p.trim();
+    if (!trimmed) return;
+
+    // If this looks like a disclaimer or source, force a new bubble
+    const isDisclaimer = /^(safety (note|reminder)|disclaimer)/i.test(trimmed);
+    const isSource = /^source[s]?:/i.test(trimmed);
+
+    if (isDisclaimer || isSource) {
+      // Flush anything we've collected so far
+      if (currentGroup.length) {
+        bubbles.push(currentGroup.join("\n\n"));
+        currentGroup = [];
+      }
+      // Disclaimer / source gets its own bubble
+      bubbles.push(trimmed);
+    } else {
+      currentGroup.push(trimmed);
+    }
+  });
+
+  if (currentGroup.length) {
+    bubbles.push(currentGroup.join("\n\n"));
+  }
+
+  return bubbles;
+}
+
 
 
   function formatLLMReply(text) {
@@ -632,13 +671,19 @@ async function callLLM(userText, options = {}) {
         const profileKey = step.llmProfile || activeLLMProfile || "default";
         const systemPrompt = LLM_PROFILES[profileKey];
 
-        const llmReply = await callLLM(value, {
-          endpoint: step.endpoint,
-          systemPrompt,
-        });
+        // const llmReply = await callLLM(value, {
+        //   endpoint: step.endpoint,
+        //   systemPrompt,
+        // });
+        // hideTypingIndicator();
+        // addBubble(llmReply, "bot");
 
+        const llmReply = await callLLM(value, { endpoint: step.endpoint, systemPrompt });
         hideTypingIndicator();
-        addBubble(llmReply, "bot");
+
+        const chunks = Array.isArray(llmReply) ? llmReply : [llmReply];
+        chunks.forEach(chunk => addBubble(chunk, "bot"));
+        
         scrollChatToBottom();
 
         const nextIndex = getNextIndex(currentStepIndex, step);
@@ -672,17 +717,27 @@ async function callLLM(userText, options = {}) {
         const profileKey = step.llmProfile || activeLLMProfile || "default";
         const systemPrompt = LLM_PROFILES[profileKey];
 
-        const llmReply = await callLLM(inputText, {
-          endpoint: step.endpoint,
-          systemPrompt,
-        });
+        // const llmReply = await callLLM(inputText, {
+        //   endpoint: step.endpoint,
+        //   systemPrompt,
+        // });
 
+        // hideTypingIndicator();
+        // addBubble(llmReply, "bot");
+
+        // if (step.id) {
+        //   state[step.id] = llmReply;
+        // }
+        const llmReply = await callLLM(inputText, { endpoint: step.endpoint, systemPrompt });
         hideTypingIndicator();
-        addBubble(llmReply, "bot");
+
+        const chunks = Array.isArray(llmReply) ? llmReply : [llmReply];
+        chunks.forEach(chunk => addBubble(chunk, "bot"));
 
         if (step.id) {
-          state[step.id] = llmReply;
+          state[step.id] = chunks.join("\n\n");
         }
+
 
         const nextIndex = getNextIndex(currentStepIndex, step);
         currentStepIndex = nextIndex;
