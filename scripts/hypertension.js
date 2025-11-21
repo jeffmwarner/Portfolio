@@ -20,10 +20,10 @@ const SCRIPT_HYPERTENSION = [
   {
     type: "choice",
     stepId: "topicChoice",
-    branches: { "What hypertension means": "topicLLM", "Medications and side effects": "topicLLM", "Home blood pressure monitoring": "topicLLM", "Lifestyle changes": "topicLLM", "Skip this": "skipIntro" },
+    branches: { "What is hypertension": "topicLLM", "Medications and side effects": "topicLLM", "Home blood pressure monitoring": "topicLLM", "Lifestyle changes": "topicLLM", "Skip this": "skipIntro" },
     id: "focusTopic",
     prompt: `Which topic would you like learn about?`,
-    choices: ["What hypertension means", "Medications and side effects", "Home blood pressure monitoring", "Lifestyle changes", "Skip this"],
+    choices: ["What is hypertension", "Medications and side effects", "Home blood pressure monitoring", "Lifestyle changes", "Skip this"],
   },
   {
     type: "llmBot",
