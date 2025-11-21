@@ -62,6 +62,6 @@ const SCRIPT_HYPERTENSION = [
   {
     type: "bot",
     stepId: "wrapup",
-    text: `Thanks for walking through this today. Remember this is general information and your own clinician knows your situation best! ${nextAction}`,
+    text: "Thanks for walking through this today. Remember this is general information and your own clinician knows your situation best! ${nextAction}",
   },
 ];
