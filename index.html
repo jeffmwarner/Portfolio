@@ -510,8 +510,19 @@ function splitIntoBubbles(text) {
   return bubbles;
 }
 
-
-
+function runComputeStep(step, state) {
+  if (!step) return;
+  try {
+    if (typeof step.compute === "function") {
+      step.compute(state);
+    } else if (typeof step.compute === "string" && step.compute.trim()) {
+      const fn = new Function("state", step.compute);
+      fn(state);
+    }
+  } catch (err) {
+    console.error("Error in compute step", step.stepId, err);
+  }
+}
 
 function formatLLMReply(text) {
   if (!text) return "";
@@ -704,6 +715,17 @@ function formatLLMReply(text) {
 
       chatInputAreaEl.appendChild(wrapper);
       scrollChatToBottom();
+    }
+      
+     // COMPUTE (hidden logic step: no UI, just mutate state & continue)
+    else if (step.type === "compute") {
+      runComputeStep(step, state);
+
+      const nextIndex = getNextIndex(currentStepIndex, step);
+      currentStepIndex = nextIndex;
+
+      // Immediately jump to the next step (no user interaction)
+      renderStep();
     }
 
     // LLM INPUT (free-text step that calls LLM immediately)
