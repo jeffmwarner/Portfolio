@@ -349,7 +349,35 @@ const AAAconversationScript = [
   });
 }
 
-function resetConversation(key) {
+function resetConversation(scenarioKey) {
+  // Kill pending timeouts
+  if (pendingTimeout) {
+    clearTimeout(pendingTimeout);
+    pendingTimeout = null;
+  }
+
+  runId++;  // invalidate all in-flight async LLM calls
+
+  // Clear UI
+  chatLogEl.innerHTML = "";
+  chatInputAreaEl.innerHTML = "";
+
+  // Reset state + index
+  state = {};
+  currentStepIndex = 0;
+
+  // Load script + system profile instructions
+  const scenario = SCENARIOS[scenarioKey];
+
+  activeScript = scenario?.script || [];
+  activeProfile = scenario?.llmProfile || null;
+
+  // Kick off rendering
+  renderStep();
+}
+
+
+function XXXresetConversation(key) {
   const scenario = SCENARIOS[key];
   if (!scenario) return;
 
@@ -419,7 +447,13 @@ scenarioSelect.addEventListener("change", (e) => {
   const chatInputAreaEl = document.getElementById("chat-input-area");
 
   let currentStepIndex = 0;
-  const state = {};
+  let state = {};
+  let activeScript = null;
+  let activeProfile = null;
+  let currentStepIndex = 0;
+  let state = {};
+  let pendingTimeout = null;
+  let runId = 0; // prevents stale LLM responses
 
 function addBubble(text, role) {
   const bubble = document.createElement("div");
@@ -481,6 +515,7 @@ async function callLLM(userText, options = {}) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message: userText,
+      profile: activeProfile,
       systemPrompt: systemPrompt || undefined,
     }),
   });
@@ -614,13 +649,15 @@ function XXXformatLLMReply(text) {
   // --- Main step renderer with branching ---
 
   function renderStep() {
+      if (!activeScript) return;
     chatInputAreaEl.innerHTML = ""; // clear input area
 
     if (currentStepIndex >= conversationScript.length) {
       return;
     }
 
-    const step = conversationScript[currentStepIndex];
+    //const step = conversationScript[currentStepIndex];
+      const step = activeScript[currentStepIndex];
 
     // BOT
     if (step.type === "bot") {
@@ -790,7 +827,8 @@ function XXXformatLLMReply(text) {
 
   // Kick off the scripted conversation
   //renderStep();
-    resetConversation("hypertension");
+  //resetConversation("hypertension");
+    resetConversation(document.getElementById("scenario-select").value);
 </script>
 
 
