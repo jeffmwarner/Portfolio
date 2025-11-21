@@ -622,6 +622,14 @@ function formatLLMReply(text) {
     }
     typingEl = null;
   }
+function interpolate(text, state) {
+  if (!text || typeof text !== "string") return text;
+
+  return text.replace(/\$\{([^}]+)\}/g, (_, key) => {
+    const value = state[key.trim()];
+    return value != null ? String(value) : "";
+  });
+}
 
   // --- Main step renderer with branching ---
 
@@ -647,7 +655,7 @@ function formatLLMReply(text) {
 
       setTimeout(() => {
         hideTypingIndicator();
-        addBubble(raw, "bot");
+        addBubble(interpolate(raw, state), "bot");
         const nextIndex = getNextIndex(currentStepIndex, step);
         currentStepIndex = nextIndex;
         setTimeout(renderStep, 500);
@@ -656,7 +664,7 @@ function formatLLMReply(text) {
 
     // USER INPUT
     else if (step.type === "userInput") {
-      addBubble(step.prompt, "bot");
+      addBubble(interpolate(step.prompt, state), "bot");
 
       const wrapper = document.createElement("div");
       const textarea = document.createElement("textarea");
