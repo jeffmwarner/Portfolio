@@ -252,6 +252,10 @@ body {
 
 /* Top bar wrapper */
 #top-bar {
+    width: 100%;
+    margin-left: 0;
+    padding-right: 120px;
+    box-sizing: border-box;
   margin-bottom: 1rem;
   transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
 }
