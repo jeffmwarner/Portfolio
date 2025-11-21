@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Conversation Script Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Load your script that defines SCRIPT_HYPERTENSION -->
+  <script src="/Portfolio/scripts/hypertension.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #1f2937;
+      background: #020617;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    header p {
+      margin: 0.25rem 0 0;
+      font-size: 0.875rem;
+      color: #9ca3af;
+    }
+
+    .builder-root {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+      height: calc(100vh - 72px);
+    }
+
+    /* Step list */
+    .step-list {
+      border-right: 1px solid #1f2937;
+      background: #020617;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .step-list-header {
+      padding: 0.75rem 0.75rem 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid #1f2937;
+    }
+    .step-list-header button {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    #stepList {
+      list-style: none;
+      margin: 0;
+      padding: 0.25rem 0;
+      overflow-y: auto;
+      flex: 1;
+    }
+    #stepList li {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border-bottom: 1px solid #020617;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    #stepList li span.meta {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    #stepList li.active {
+      background: #111827;
+    }
+    #stepList li:hover {
+      background: #0b1120;
+    }
+
+    /* Editor pane */
+    .step-editor {
+      padding: 1rem 1.25rem 0.5rem;
+      overflow-y: auto;
+    }
+    .step-editor h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+    }
+    .step-editor small {
+      color: #9ca3af;
+    }
+
+    form label {
+      display: block;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+      margin-bottom: 0.15rem;
+      color: #9ca3af;
+    }
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.875rem;
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .field-row > div {
+      flex: 1;
+    }
+
+    .choices-container {
+      border: 1px solid #1f2937;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      background: #020617;
+    }
+
+    .choice-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) auto;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+      align-items: center;
+    }
+    .choice-row button {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .choice-row small {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .editor-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 0.5rem;
+    }
+    .editor-actions-left button,
+    .editor-actions-right button {
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .editor-actions-left button.primary {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+    .editor-actions-right button.danger {
+      background: #7f1d1d;
+      border-color: #7f1d1d;
+    }
+    .editor-actions button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    /* Export / import */
+    .export-panel {
+      border-top: 1px solid #1f2937;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+    }
+    .export-panel h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+    }
+    .export-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .export-controls button {
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    #jsonOutput {
+      width: 100%;
+      min-height: 160px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      background: #020617;
+    }
+
+    @media (max-width: 900px) {
+      .builder-root {
+        grid-template-columns: 1fr;
+        grid-template-rows: 220px 1fr;
+      }
+      .step-list {
+        border-right: none;
+        border-bottom: 1px solid #1f2937;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Conversation Script Builder</h1>
+    <p>Edit, add, and reorder steps for <code>SCRIPT_HYPERTENSION</code>. Export the JSON and paste it back into your script.</p>
+  </header>
+
+  <div class="builder-root">
+    <!-- Left: step list -->
+    <aside class="step-list">
+      <div class="step-list-header">
+        <button id="addStepBtn">+ Add step</button>
+        <button id="duplicateStepBtn">Duplicate</button>
+      </div>
+      <ul id="stepList"></ul>
+    </aside>
+
+    <!-- Right: editor -->
+    <main class="step-editor">
+      <h2 id="editorTitle">No step selected</h2>
+      <small>Select or add a step on the left to edit it.</small>
+
+      <form id="stepForm" style="margin-top: 0.75rem; display: none;">
+        <label>Type</label>
+        <select id="field-type">
+          <option value="bot">bot</option>
+          <option value="choice">choice</option>
+          <option value="userInput">userInput</option>
+          <option value="llmBot">llmBot</option>
+          <option value="llmInput">llmInput</option>
+        </select>
+
+        <div class="field-row">
+          <div>
+            <label>stepId</label>
+            <input type="text" id="field-stepId" placeholder="intro1, topicChoice, etc." />
+          </div>
+          <div>
+            <label>next (stepId or index)</label>
+            <input type="text" id="field-next" placeholder="intro2, wrapup, or numeric index" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div>
+            <label>id (used to store user answers / state)</label>
+            <input type="text" id="field-id" placeholder="focusTopic, nextAction..." />
+          </div>
+          <div>
+            <label>source (for llmBot / llmInput)</label>
+            <input type="text" id="field-source" placeholder="state key to feed into LLM" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div>
+            <label>endpoint (optional)</label>
+            <input type="text" id="field-endpoint" placeholder="/api/chat override (optional)" />
+          </div>
+          <div>
+            <label>llmProfile (optional)</label>
+            <input type="text" id="field-llmProfile" placeholder="hypertensionEducation, etc." />
+          </div>
+        </div>
+
+        <!-- bot.text -->
+        <div data-field-group="bot">
+          <label>text (bot message)</label>
+          <textarea id="field-text" placeholder="What the bot says"></textarea>
+        </div>
+
+        <!-- prompt (choice, userInput, llmInput) -->
+        <div data-field-group="choice userInput llmInput">
+          <label>prompt (question shown to user)</label>
+          <textarea id="field-prompt" placeholder="What the bot asks the user"></textarea>
+        </div>
+
+        <!-- choices + branches -->
+        <div data-field-group="choice">
+          <label>Choices & branches</label>
+          <div class="choices-container">
+            <div id="choicesRows"></div>
+            <button type="button" id="addChoiceRowBtn">+ Add choice</button>
+            <p style="margin:0.5rem 0 0;">
+              <small>
+                “Branch to” should be a <code>stepId</code> from another step
+                (e.g., <code>topicLLM</code>). Leave it empty if you want to
+                fall back to the step's <code>next</code>.
+              </small>
+            </p>
+          </div>
+        </div>
+      </form>
+
+      <div class="editor-actions">
+        <div class="editor-actions-left">
+          <button id="moveUpBtn" disabled>↑ Move up</button>
+          <button id="moveDownBtn" disabled>↓ Move down</button>
+        </div>
+        <div class="editor-actions-right">
+          <button id="deleteStepBtn" class="danger" disabled>Delete step</button>
+        </div>
+      </div>
+
+      <section class="export-panel">
+        <h3>Export / Import JSON</h3>
+        <div class="export-controls">
+          <button type="button" id="exportJsonBtn">Export from builder</button>
+          <button type="button" id="copyJsonBtn">Copy to clipboard</button>
+          <button type="button" id="importJsonBtn">Import into builder</button>
+        </div>
+        <textarea id="jsonOutput" spellcheck="false" placeholder="Exported SCRIPT_HYPERTENSION will appear here. You can also paste JSON and click 'Import'."></textarea>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ---- Initial script data ----
+    // Use SCRIPT_HYPERTENSION if available, otherwise start with empty array.
+    let script = Array.isArray(window.SCRIPT_HYPERTENSION)
+      ? JSON.parse(JSON.stringify(window.SCRIPT_HYPERTENSION))
+      : [];
+
+    let selectedIndex = script.length > 0 ? 0 : -1;
+
+    const stepListEl = document.getElementById("stepList");
+    const addStepBtn = document.getElementById("addStepBtn");
+    const duplicateStepBtn = document.getElementById("duplicateStepBtn");
+
+    const stepForm = document.getElementById("stepForm");
+    const editorTitle = document.getElementById("editorTitle");
+
+    const moveUpBtn = document.getElementById("moveUpBtn");
+    const moveDownBtn = document.getElementById("moveDownBtn");
+    const deleteStepBtn = document.getElementById("deleteStepBtn");
+
+    const fieldType = document.getElementById("field-type");
+    const fieldStepId = document.getElementById("field-stepId");
+    const fieldNext = document.getElementById("field-next");
+    const fieldId = document.getElementById("field-id");
+    const fieldSource = document.getElementById("field-source");
+    const fieldEndpoint = document.getElementById("field-endpoint");
+    const fieldLlmProfile = document.getElementById("field-llmProfile");
+    const fieldText = document.getElementById("field-text");
+    const fieldPrompt = document.getElementById("field-prompt");
+
+    const choicesRows = document.getElementById("choicesRows");
+    const addChoiceRowBtn = document.getElementById("addChoiceRowBtn");
+
+    const exportJsonBtn = document.getElementById("exportJsonBtn");
+    const copyJsonBtn = document.getElementById("copyJsonBtn");
+    const importJsonBtn = document.getElementById("importJsonBtn");
+    const jsonOutput = document.getElementById("jsonOutput");
+
+    // Which field-groups are shown per type
+    const FIELD_GROUPS = {
+      bot: ["bot"],
+      choice: ["choice", "userInput"], // choice uses 'prompt' group also
+      userInput: ["userInput"],
+      llmBot: [],
+      llmInput: ["llmInput"], // uses 'prompt'
+    };
+
+    function getStepLabel(step, index) {
+      const type = step.type || "?";
+      const stepId = step.stepId || "(no stepId)";
+      return `${index}. [${type}] ${stepId}`;
+    }
+
+    function renderStepList() {
+      stepListEl.innerHTML = "";
+      script.forEach((step, index) => {
+        const li = document.createElement("li");
+        li.dataset.index = index;
+
+        const mainText = document.createElement("span");
+        mainText.textContent = getStepLabel(step, index);
+
+        const meta = document.createElement("span");
+        meta.className = "meta";
+        meta.textContent = step.next ? `→ ${step.next}` : "";
+
+        li.appendChild(mainText);
+        li.appendChild(meta);
+
+        if (index === selectedIndex) {
+          li.classList.add("active");
+        }
+
+        li.addEventListener("click", () => {
+          saveCurrentStep();
+          selectedIndex = index;
+          renderStepList();
+          renderEditor();
+        });
+
+        stepListEl.appendChild(li);
+      });
+    }
+
+    function renderEditor() {
+      if (selectedIndex < 0 || !script[selectedIndex]) {
+        stepForm.style.display = "none";
+        editorTitle.textContent = "No step selected";
+        moveUpBtn.disabled = true;
+        moveDownBtn.disabled = true;
+        deleteStepBtn.disabled = true;
+        return;
+      }
+
+      const step = script[selectedIndex];
+      stepForm.style.display = "block";
+      editorTitle.textContent = `Editing step ${selectedIndex}`;
+
+      moveUpBtn.disabled = selectedIndex === 0;
+      moveDownBtn.disabled = selectedIndex === script.length - 1;
+      deleteStepBtn.disabled = script.length === 0;
+
+      // Fill fields
+      fieldType.value = step.type || "bot";
+      fieldStepId.value = step.stepId || "";
+      fieldNext.value = step.next != null ? String(step.next) : "";
+
+      fieldId.value = step.id || "";
+      fieldSource.value = step.source || "";
+      fieldEndpoint.value = step.endpoint || "";
+      fieldLlmProfile.value = step.llmProfile || step.llm_profile || "";
+
+      fieldText.value = step.text || "";
+      fieldPrompt.value = step.prompt || "";
+
+      // Render choices + branches
+      renderChoiceRows(step);
+
+      updateVisibleFieldGroups();
+    }
+
+    function renderChoiceRows(step) {
+      choicesRows.innerHTML = "";
+      const choices = Array.isArray(step.choices) ? step.choices : [];
+      const branches = step.branches || {};
+
+      choices.forEach((label, idx) => {
+        const branchTarget = branches[label] || "";
+
+        const row = document.createElement("div");
+        row.className = "choice-row";
+
+        const labelInput = document.createElement("input");
+        labelInput.type = "text";
+        labelInput.placeholder = "Choice text";
+        labelInput.value = label;
+        labelInput.dataset.role = "choice-label";
+
+        const branchInput = document.createElement("input");
+        branchInput.type = "text";
+        branchInput.placeholder = "Branch to stepId (optional)";
+        branchInput.value = branchTarget;
+        branchInput.dataset.role = "choice-branch";
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => {
+          row.remove();
+        });
+
+        row.appendChild(labelInput);
+        row.appendChild(branchInput);
+        row.appendChild(removeBtn);
+        choicesRows.appendChild(row);
+      });
+    }
+
+    function updateVisibleFieldGroups() {
+      const type = fieldType.value;
+      const groupsToShow = new Set(FIELD_GROUPS[type] || []);
+
+      document.querySelectorAll("[data-field-group]").forEach((el) => {
+        const groups = el.getAttribute("data-field-group").split(/\s+/);
+        const visible = groups.some((g) => groupsToShow.has(g));
+        el.style.display = visible ? "block" : "none";
+      });
+    }
+
+    function saveCurrentStep() {
+      if (selectedIndex < 0 || !script[selectedIndex]) return;
+
+      const step = script[selectedIndex];
+      step.type = fieldType.value || "bot";
+      step.stepId = fieldStepId.value.trim() || undefined;
+
+      const nextRaw = fieldNext.value.trim();
+      if (nextRaw === "") {
+        delete step.next;
+      } else if (!isNaN(Number(nextRaw))) {
+        // If it's a pure number, save it as a number; otherwise string.
+        step.next = Number(nextRaw);
+      } else {
+        step.next = nextRaw;
+      }
+
+      step.id = fieldId.value.trim() || undefined;
+      step.source = fieldSource.value.trim() || undefined;
+
+      const endpoint = fieldEndpoint.value.trim();
+      if (endpoint) step.endpoint = endpoint;
+      else delete step.endpoint;
+
+      const lp = fieldLlmProfile.value.trim();
+      if (lp) step.llmProfile = lp;
+      else delete step.llmProfile;
+
+      // Type-specific fields
+      if (step.type === "bot") {
+        step.text = fieldText.value;
+        delete step.prompt;
+        delete step.choices;
+        delete step.branches;
+      } else if (step.type === "choice") {
+        step.prompt = fieldPrompt.value;
+        // collect choices + branches
+        const labels = [];
+        const branches = {};
+        choicesRows.querySelectorAll(".choice-row").forEach((row) => {
+          const labelInput = row.querySelector('input[data-role="choice-label"]');
+          const branchInput = row.querySelector('input[data-role="choice-branch"]');
+          if (!labelInput) return;
+          const label = labelInput.value.trim();
+          if (!label) return;
+          labels.push(label);
+
+          const target = branchInput ? branchInput.value.trim() : "";
+          if (target) {
+            branches[label] = target;
+          }
+        });
+        step.choices = labels;
+        step.branches = Object.keys(branches).length ? branches : undefined;
+        delete step.text;
+      } else if (step.type === "userInput") {
+        step.prompt = fieldPrompt.value;
+        delete step.text;
+        delete step.choices;
+        delete step.branches;
+      } else if (step.type === "llmInput") {
+        step.prompt = fieldPrompt.value;
+        delete step.text;
+        delete step.choices;
+        delete step.branches;
+      } else if (step.type === "llmBot") {
+        delete step.text;
+        delete step.prompt;
+        delete step.choices;
+        delete step.branches;
+      }
+
+      // Clean up undefined keys for nicer JSON
+      Object.keys(step).forEach((key) => {
+        if (step[key] === undefined) delete step[key];
+      });
+    }
+
+    // ---- Event wiring ----
+
+    addStepBtn.addEventListener("click", () => {
+      saveCurrentStep();
+      const newStep = {
+        type: "bot",
+        stepId: `step_${script.length + 1}`,
+        text: "New bot message",
+      };
+      script.push(newStep);
+      selectedIndex = script.length - 1;
+      renderStepList();
+      renderEditor();
+    });
+
+    duplicateStepBtn.addEventListener("click", () => {
+      if (selectedIndex < 0 || !script[selectedIndex]) return;
+      saveCurrentStep();
+      const copy = JSON.parse(JSON.stringify(script[selectedIndex]));
+      // Optionally tweak the stepId slightly
+      copy.stepId = copy.stepId ? `${copy.stepId}_copy` : undefined;
+      script.splice(selectedIndex + 1, 0, copy);
+      selectedIndex = selectedIndex + 1;
+      renderStepList();
+      renderEditor();
+    });
+
+    moveUpBtn.addEventListener("click", () => {
+      if (selectedIndex <= 0) return;
+      saveCurrentStep();
+      const idx = selectedIndex;
+      const tmp = script[idx - 1];
+      script[idx - 1] = script[idx];
+      script[idx] = tmp;
+      selectedIndex = idx - 1;
+      renderStepList();
+      renderEditor();
+    });
+
+    moveDownBtn.addEventListener("click", () => {
+      if (selectedIndex < 0 || selectedIndex >= script.length - 1) return;
+      saveCurrentStep();
+      const idx = selectedIndex;
+      const tmp = script[idx + 1];
+      script[idx + 1] = script[idx];
+      script[idx] = tmp;
+      selectedIndex = idx + 1;
+      renderStepList();
+      renderEditor();
+    });
+
+    deleteStepBtn.addEventListener("click", () => {
+      if (selectedIndex < 0 || !script[selectedIndex]) return;
+      if (!confirm("Delete this step?")) return;
+      script.splice(selectedIndex, 1);
+      if (script.length === 0) {
+        selectedIndex = -1;
+      } else if (selectedIndex >= script.length) {
+        selectedIndex = script.length - 1;
+      }
+      renderStepList();
+      renderEditor();
+    });
+
+    fieldType.addEventListener("change", updateVisibleFieldGroups);
+
+    addChoiceRowBtn.addEventListener("click", () => {
+      const row = document.createElement("div");
+      row.className = "choice-row";
+
+      const labelInput = document.createElement("input");
+      labelInput.type = "text";
+      labelInput.placeholder = "Choice text";
+      labelInput.dataset.role = "choice-label";
+
+      const branchInput = document.createElement("input");
+      branchInput.type = "text";
+      branchInput.placeholder = "Branch to stepId (optional)";
+      branchInput.dataset.role = "choice-branch";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.textContent = "Remove";
+      removeBtn.addEventListener("click", () => row.remove());
+
+      row.appendChild(labelInput);
+      row.appendChild(branchInput);
+      row.appendChild(removeBtn);
+      choicesRows.appendChild(row);
+    });
+
+    exportJsonBtn.addEventListener("click", () => {
+      saveCurrentStep();
+      const json = JSON.stringify(script, null, 2);
+      jsonOutput.value = `const SCRIPT_HYPERTENSION = ${json};`;
+    });
+
+    copyJsonBtn.addEventListener("click", async () => {
+      if (!jsonOutput.value.trim()) return;
+      try {
+        await navigator.clipboard.writeText(jsonOutput.value);
+        copyJsonBtn.textContent = "Copied!";
+        setTimeout(() => (copyJsonBtn.textContent = "Copy to clipboard"), 1200);
+      } catch (err) {
+        alert("Clipboard copy failed in this browser. You can still Ctrl/Cmd+C.");
+      }
+    });
+
+    importJsonBtn.addEventListener("click", () => {
+      const raw = jsonOutput.value.trim();
+      if (!raw) return;
+      try {
+        let arr = null;
+        if (raw.startsWith("const SCRIPT_HYPERTENSION")) {
+          // Strip leading "const SCRIPT_HYPERTENSION ="
+          const idx = raw.indexOf("=");
+          const jsonPart = raw.slice(idx + 1);
+          arr = eval("(" + jsonPart + ")"); // cheap but local-only
+        } else {
+          arr = JSON.parse(raw);
+        }
+        if (!Array.isArray(arr)) {
+          alert("Imported JSON is not an array.");
+          return;
+        }
+        script = arr;
+        selectedIndex = script.length ? 0 : -1;
+        renderStepList();
+        renderEditor();
+      } catch (e) {
+        console.error(e);
+        alert("Could not parse JSON. Check the console for details.");
+      }
+    });
+
+    // Initial render
+    renderStepList();
+    renderEditor();
+  </script>
+</body>
+</html>
