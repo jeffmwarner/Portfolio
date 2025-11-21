@@ -1,67 +1,87 @@
 const SCRIPT_HYPERTENSION = [
   {
-    type: "bot",
-    stepId: "intro1",
-    next: "intro2",
-    text: `Hello! I'm your digital health assistant and  I am here to help you understand high blood pressure, also called hypertension, and what it means for you`,
+    "type": "bot",
+    "stepId": "intro1",
+    "next": "intro2",
+    "text": "Hello! I'm your digital health assistant and  I am here to help you understand high blood pressure, also called hypertension, and what it means for you"
   },
   {
-    type: "bot",
-    stepId: "intro2",
-    next: "intro3",
-    text: `We will keep things simple and focus on what is most helpful for you today`,
+    "type": "bot",
+    "stepId": "intro2",
+    "next": "intro3",
+    "text": "We will keep things simple and focus on what is most helpful for you today"
   },
   {
-    type: "bot",
-    stepId: "intro3",
-    next: "topicChoice",
-    text: `First you can pick a topic or skip education for now and go straight to next steps`,
+    "type": "bot",
+    "stepId": "intro3",
+    "next": "topicChoice",
+    "text": "First you can pick a topic or skip education for now and go straight to next steps"
   },
   {
-    type: "choice",
-    stepId: "topicChoice",
-    branches: { "What is hypertension": "topicLLM", "Medications and side effects": "topicLLM", "Home blood pressure monitoring": "topicLLM", "Lifestyle changes": "topicLLM", "Skip this": "skipIntro" },
-    id: "focusTopic",
-    prompt: `Which topic would you like learn about?`,
-    choices: ["What is hypertension", "Medications and side effects", "Home blood pressure monitoring", "Lifestyle changes", "Skip this"],
+    "type": "choice",
+    "stepId": "topicChoice",
+    "branches": {
+      "What is hypertension": "topicLLM",
+      "Medications and side effects": "topicLLM",
+      "Home blood pressure monitoring": "topicLLM",
+      "Lifestyle changes": "topicLLM",
+      "Skip this": "skipIntro"
+    },
+    "id": "focusTopic",
+    "prompt": "Which topic would you like learn about?",
+    "choices": [
+      "What is hypertension",
+      "Medications and side effects",
+      "Home blood pressure monitoring",
+      "Lifestyle changes",
+      "Skip this"
+    ]
   },
   {
-    type: "llmBot",
-    stepId: "topicLLM",
-    next: "afterTopic",
-    source: "focusTopic",
+    "type": "llmBot",
+    "stepId": "topicLLM",
+    "next": "afterTopic",
+    "source": "focusTopic"
   },
   {
-    type: "choice",
-    stepId: "afterTopic",
-    branches: { "Ask a follow up question": "freeTextQuestion", "Learn about another topic": "topicChoice", "I am done for now": "wrapup" },
-    id: "nextAction",
-    prompt: `What would you like to do next`,
-    choices: ["Ask a follow up question", "Learn about another topic", "I am done for now"],
+    "type": "choice",
+    "stepId": "afterTopic",
+    "branches": {
+      "Ask a follow up question": "freeTextQuestion",
+      "Learn about another topic": "topicChoice",
+      "I am done for now": "wrapup"
+    },
+    "id": "nextAction",
+    "prompt": "What would you like to do next",
+    "choices": [
+      "Ask a follow up question",
+      "Learn about another topic",
+      "I am done for now"
+    ]
   },
   {
-    type: "userInput",
-    stepId: "freeTextQuestion",
-    next: "questionLLM",
-    id: "patientQuestion",
-    prompt: `What questions do you have about your blood pressure or treatment`,
+    "type": "userInput",
+    "stepId": "freeTextQuestion",
+    "next": "questionLLM",
+    "id": "patientQuestion",
+    "prompt": "What questions do you have about your blood pressure or treatment"
   },
   {
-    type: "llmBot",
-    stepId: "questionLLM",
-    next: "afterTopic",
-    id: "questionAnswer",
-    source: "patientQuestion",
+    "type": "llmBot",
+    "stepId": "questionLLM",
+    "next": "afterTopic",
+    "id": "questionAnswer",
+    "source": "patientQuestion"
   },
   {
-    type: "bot",
-    stepId: "skipIntro",
-    next: "wrapup",
-    text: `No problem we can always come back to education later if it is helpful for you`,
+    "type": "bot",
+    "stepId": "skipIntro",
+    "next": "wrapup",
+    "text": "No problem we can always come back to education later if it is helpful for you"
   },
   {
-    type: "bot",
-    stepId: "wrapup",
-    text: "Thanks for walking through this today. Remember this is general information and your own clinician knows your situation best! ${nextAction}",
-  },
+    "type": "bot",
+    "stepId": "wrapup",
+    "text": "Thanks for walking through this today. Remember this is general information and your own clinician knows your situation best!"
+  }
 ];
