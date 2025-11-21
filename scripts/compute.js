@@ -43,4 +43,4 @@ const SCRIPT_COMPUTE = [
     "stepId": "step_8",
     "text": "Very nice to meet you, ${name}. "
   }
-];
+]; 
