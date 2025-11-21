@@ -275,7 +275,7 @@ body {
 }
 
 /* Mobile behavior only */
-@media (max-width: 768px), @media (max-height: 1000px {
+@media (max-width: 768px), (max-height: 1000px) {
 
   /* When header is collapsed, slide it out of view */
   body.chat-header-collapsed #top-bar {
