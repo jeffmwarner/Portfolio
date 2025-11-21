@@ -457,31 +457,46 @@ async function callLLM(userText, options = {}) {
 function splitIntoBubbles(text) {
   if (!text) return [];
 
-  // Split on blank lines OR when a new bullet paragraph starts
+  // Paragraphs = chunks separated by blank lines
   const paragraphs = text
-    .split(/\n\s*\n|(?=^\s*•)/gm)
+    .split(/\n\s*\n/g)
     .map(p => p.trim())
     .filter(Boolean);
 
   const bubbles = [];
   let currentGroup = [];
+  let currentLen = 0;
+
+  // Tweak this number to taste
+  const MAX_CHARS_PER_BUBBLE = 550;
 
   paragraphs.forEach(p => {
     const isDisclaimer =
-      /general information.*not (a )?diagnosis|not (a )?treatment|not medical advice/i.test(p);
-    const isSource = /^source\s*check[:]?/i.test(p) || /^source[s]?:/i.test(p);
+      /general (education|information).*not.*(diagnosis|treatment|medical advice)/i.test(p);
+    const isSource =
+      /^source\s*check[:]?/i.test(p) || /^source[s]?:/i.test(p);
 
+    // Disclaimer / Source always get their own bubble
     if (isDisclaimer || isSource) {
-      // Flush accumulated main content
       if (currentGroup.length) {
         bubbles.push(currentGroup.join("\n\n"));
         currentGroup = [];
+        currentLen = 0;
       }
-      // Disclaimer or source gets its own bubble
       bubbles.push(p);
-    } else {
-      currentGroup.push(p);
+      return;
     }
+
+    // If adding this paragraph would make the bubble too long,
+    // flush the current bubble and start a new one.
+    if (currentLen > 0 && (currentLen + p.length > MAX_CHARS_PER_BUBBLE)) {
+      bubbles.push(currentGroup.join("\n\n"));
+      currentGroup = [];
+      currentLen = 0;
+    }
+
+    currentGroup.push(p);
+    currentLen += p.length;
   });
 
   if (currentGroup.length) {
@@ -490,6 +505,7 @@ function splitIntoBubbles(text) {
 
   return bubbles;
 }
+
 
 
 
