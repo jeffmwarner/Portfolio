@@ -181,7 +181,7 @@ body {
   margin: 20px 0;
 }
 
-.choice-buttons button, .chat-input-area button {
+#top-bar button, .choice-buttons button, .chat-input-area button {
   background: #f0f0f0;
   border: 1px solid #c7d2fe;
   color: #1e3a8a;
