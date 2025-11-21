@@ -52,51 +52,7 @@
 
   let activeLLMProfile = 'default';
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
-
-  document.getElementById("sendRealBtn").addEventListener("click", async () => {
-    const inputEl = document.getElementById("userInput");
-    const outputEl = document.getElementById("realAssistantOutput");
-    const text = inputEl.value.trim();
-
-    if (!text) {
-      outputEl.textContent = "Please type something so I can send it to the assistant.";
-      return;
-    }
-
-    outputEl.textContent = "...";
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
-      });
-
-      if (!res.ok) {
-        outputEl.textContent = "The assistant ran into a problem. Please try again later.";
-        return;
-      }
-
-      const data = await res.json();
-
-      const formatReply = (text) => {
-        return text.replace(/([.?!])\s+/g, '$1\n\n');
-      }
-
-      outputEl.textContent = data.reply;
-    } catch (err) {
-      console.error(err);
-
-      outputEl.textContent = "Network error talking to the assistant.";
-    }
-  });
-</script>
-<script>
-
-
-  // --- Predetermined conversation script with optional routing fields ---
-
-
+  
   const LLM_PROFILES = {
     default: `
 You are a careful, concise assistant. Be clear and kind. Avoid medical, legal,
