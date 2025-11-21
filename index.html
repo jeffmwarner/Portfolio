@@ -454,34 +454,32 @@ async function callLLM(userText, options = {}) {
   return splitIntoBubbles(formatted);
 }
 
-  function splitIntoBubbles(text) {
+function splitIntoBubbles(text) {
   if (!text) return [];
 
-  // Split on blank lines into "paragraphs"
-  const paragraphs = text.split(/\n\s*\n/);
+  // Split on blank lines OR new bullet sections
+  const paragraphs = text
+    .split(/\n\s*\n|(?=^\s*•)/gm)
+    .map(p => p.trim())
+    .filter(Boolean);
 
   const bubbles = [];
   let currentGroup = [];
 
   paragraphs.forEach((p) => {
-    const trimmed = p.trim();
-    if (!trimmed) return;
-
-    // If this looks like a disclaimer or source, force a new bubble
-    const isDisclaimer = /^(safety (note|reminder)|disclaimer)/i.test(trimmed);
-    const isSource = /^source[s]?:/i.test(trimmed);
+    const isDisclaimer = /^(safety (note|reminder)|disclaimer)/i.test(p);
+    const isSource = /^source[s]?:/i.test(p);
 
     if (isDisclaimer || isSource) {
-      // Flush anything we've collected so far
       if (currentGroup.length) {
         bubbles.push(currentGroup.join("\n\n"));
         currentGroup = [];
       }
-      // Disclaimer / source gets its own bubble
-      bubbles.push(trimmed);
-    } else {
-      currentGroup.push(trimmed);
+      bubbles.push(p);
+      return;
     }
+
+    currentGroup.push(p);
   });
 
   if (currentGroup.length) {
@@ -492,8 +490,27 @@ async function callLLM(userText, options = {}) {
 }
 
 
-
   function formatLLMReply(text) {
+  if (!text) return "";
+
+  let t = text.trim();
+
+  // Convert bullet lists into separate lines
+  t = t.replace(/[\u2022•]\s*/g, "• ");     // normalize bullets
+  t = t.replace(/\n?[-•]\s+/g, "\n• ");     // force one item per line
+
+  // Add blank lines before disclaimers or safety notes
+  t = t.replace(/(safety note|safety reminder|disclaimer)/gi, "\n\n$1");
+
+  // Collapse triple+ breaks → double
+  t = t.replace(/\n{3,}/g, "\n\n");
+
+  return t;
+}
+
+
+
+  function XXXformatLLMReply(text) {
     if (!text) return "";
 
     let out = text;
