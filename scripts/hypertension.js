@@ -44,7 +44,7 @@ const SCRIPT_HYPERTENSION = [
     stepId: "freeTextQuestion",
     next: "questionLLM",
     id: "patientQuestion",
-    prompt: `What questions do you have about your blood pressure or treatment {nextAction || ""}`,
+    prompt: `What questions do you have about your blood pressure or treatment`,
   },
   {
     type: "llmBot",
@@ -62,6 +62,6 @@ const SCRIPT_HYPERTENSION = [
   {
     type: "bot",
     stepId: "wrapup",
-    text: `Thanks for walking through this today. Remember this is general information and your own clinician knows your situation best!`,
+    text: `Thanks for walking through this today. Remember this is general information and your own clinician knows your situation best! ${nextAction}`,
   },
 ];
