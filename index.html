@@ -368,10 +368,7 @@ if (headerToggle) {
     const key = e.target.value;
     if (!key) return;
     resetConversation(key);
-    scenarioSelect.addEventListener("change", (e) => {
-  const key = e.target.value;
-  if (!key) return;
-  resetConversation(key);
+
 
   // Auto-collapse on mobile after selecting a scenario
   if (window.innerWidth <= 768) {
