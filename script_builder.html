@@ -5,8 +5,9 @@
   <title>Conversation Script Builder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Load your script that defines SCRIPT_HYPERTENSION -->
+  <!-- Use the same script sources as your main index -->
   <script src="/Portfolio/scripts/hypertension.js"></script>
+  <script src="/Portfolio/scripts/mh_intake.js"></script>
 
   <style>
     body {
@@ -95,6 +96,10 @@
     .step-editor {
       padding: 1rem 1.25rem 0.5rem;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
     }
     .step-editor h2 {
       margin: 0 0 0.75rem;
@@ -157,11 +162,6 @@
       font-size: 0.75rem;
     }
 
-    .choice-row small {
-      font-size: 0.7rem;
-      color: #9ca3af;
-    }
-
     .editor-actions {
       display: flex;
       justify-content: space-between;
@@ -217,12 +217,129 @@
       font-size: 0.8rem;
       cursor: pointer;
     }
+
+    .export-name-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .export-name-row > div {
+      flex: 1;
+      min-width: 150px;
+    }
+
     #jsonOutput {
       width: 100%;
-      min-height: 160px;
+      min-height: 140px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: 0.8rem;
       background: #020617;
+    }
+
+    /* Preview */
+    .preview-panel {
+      border-top: 1px solid #1f2937;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .preview-header button {
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .preview-chat {
+      border-radius: 0.75rem;
+      border: 1px solid #1f2937;
+      background: #020617;
+      display: flex;
+      flex-direction: column;
+      max-height: 260px;
+      overflow: hidden;
+    }
+    .preview-chat-log {
+      padding: 0.75rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .preview-chat-input {
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid #1f2937;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+    .chat-bubble {
+      max-width: 80%;
+      margin-bottom: 0.35rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.75rem;
+      font-size: 0.85rem;
+      line-height: 1.35;
+      white-space: pre-wrap;
+    }
+    .chat-bubble.bot {
+      background: #111827;
+      align-self: flex-start;
+    }
+    .chat-bubble.user {
+      background: #2563eb;
+      align-self: flex-end;
+    }
+    .chat-choice-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+    }
+    .chat-choice-group button {
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .chat-choice-group button:hover {
+      background: #111827;
+    }
+    .chat-input-block textarea {
+      width: 100%;
+      margin-bottom: 0.3rem;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.45rem;
+      border-radius: 0.5rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      resize: vertical;
+      min-height: 55px;
+      box-sizing: border-box;
+    }
+    .chat-input-block button {
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #2563eb;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .typing-indicator {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.2rem;
     }
 
     @media (max-width: 900px) {
@@ -240,7 +357,7 @@
 <body>
   <header>
     <h1>Conversation Script Builder</h1>
-    <p>Edit, add, and reorder steps for <code>SCRIPT_HYPERTENSION</code>. Export the JSON and paste it back into your script.</p>
+    <p>Edit, add, reorder steps and preview them. Export as <code>const SCRIPT_*</code> and paste into your script file.</p>
   </header>
 
   <div class="builder-root">
@@ -253,7 +370,7 @@
       <ul id="stepList"></ul>
     </aside>
 
-    <!-- Right: editor -->
+    <!-- Right: editor + preview -->
     <main class="step-editor">
       <h2 id="editorTitle">No step selected</h2>
       <small>Select or add a step on the left to edit it.</small>
@@ -281,7 +398,7 @@
 
         <div class="field-row">
           <div>
-            <label>id (used to store user answers / state)</label>
+            <label>id (for storing user answers)</label>
             <input type="text" id="field-id" placeholder="focusTopic, nextAction..." />
           </div>
           <div>
@@ -319,13 +436,6 @@
           <div class="choices-container">
             <div id="choicesRows"></div>
             <button type="button" id="addChoiceRowBtn">+ Add choice</button>
-            <p style="margin:0.5rem 0 0;">
-              <small>
-                “Branch to” should be a <code>stepId</code> from another step
-                (e.g., <code>topicLLM</code>). Leave it empty if you want to
-                fall back to the step's <code>next</code>.
-              </small>
-            </p>
           </div>
         </div>
       </form>
@@ -340,24 +450,53 @@
         </div>
       </div>
 
+      <!-- Export / import -->
       <section class="export-panel">
         <h3>Export / Import JSON</h3>
+        <div class="export-name-row">
+          <div>
+            <label>Script const name</label>
+            <input id="scriptNameInput" type="text" value="SCRIPT_HYPERTENSION" />
+          </div>
+          <div>
+            <label>Suggested file name (for your own reference)</label>
+            <input id="fileNameInput" type="text" value="hypertension.js" />
+          </div>
+        </div>
+
         <div class="export-controls">
           <button type="button" id="exportJsonBtn">Export from builder</button>
           <button type="button" id="copyJsonBtn">Copy to clipboard</button>
           <button type="button" id="importJsonBtn">Import into builder</button>
+          <button type="button" id="newEmptyBtn">New empty script</button>
         </div>
-        <textarea id="jsonOutput" spellcheck="false" placeholder="Exported SCRIPT_HYPERTENSION will appear here. You can also paste JSON and click 'Import'."></textarea>
+        <textarea id="jsonOutput" spellcheck="false" placeholder="Exported const SCRIPT_NAME = [...] will appear here. You can also paste JSON and click 'Import'."></textarea>
+      </section>
+
+      <!-- Preview -->
+      <section class="preview-panel">
+        <div class="preview-header">
+          <h3 style="margin:0;font-size:0.9rem;">Live preview</h3>
+          <button type="button" id="previewRestartBtn">Restart preview</button>
+        </div>
+        <div class="preview-chat">
+          <div id="previewChatLog" class="preview-chat-log"></div>
+          <div id="previewChatInput" class="preview-chat-input">
+            <span style="font-size:0.8rem;color:#6b7280;">Click "Restart preview" to simulate the current script.</span>
+          </div>
+        </div>
       </section>
     </main>
   </div>
 
   <script>
-    // ---- Initial script data ----
-    // Use SCRIPT_HYPERTENSION if available, otherwise start with empty array.
-    let script = Array.isArray(window.SCRIPT_HYPERTENSION)
-      ? JSON.parse(JSON.stringify(window.SCRIPT_HYPERTENSION))
-      : [];
+    // ---- Initial script data: FIX to use identifier instead of window.* ----
+    let script = [];
+    if (typeof SCRIPT_HYPERTENSION !== "undefined") {
+      script = JSON.parse(JSON.stringify(SCRIPT_HYPERTENSION));
+    } else {
+      console.warn("SCRIPT_HYPERTENSION not found; starting with empty script.");
+    }
 
     let selectedIndex = script.length > 0 ? 0 : -1;
 
@@ -388,15 +527,24 @@
     const exportJsonBtn = document.getElementById("exportJsonBtn");
     const copyJsonBtn = document.getElementById("copyJsonBtn");
     const importJsonBtn = document.getElementById("importJsonBtn");
+    const newEmptyBtn = document.getElementById("newEmptyBtn");
     const jsonOutput = document.getElementById("jsonOutput");
+
+    const scriptNameInput = document.getElementById("scriptNameInput");
+    const fileNameInput = document.getElementById("fileNameInput");
+
+    // Preview elements
+    const previewRestartBtn = document.getElementById("previewRestartBtn");
+    const previewChatLogEl = document.getElementById("previewChatLog");
+    const previewChatInputEl = document.getElementById("previewChatInput");
 
     // Which field-groups are shown per type
     const FIELD_GROUPS = {
       bot: ["bot"],
-      choice: ["choice", "userInput"], // choice uses 'prompt' group also
+      choice: ["choice", "userInput"],
       userInput: ["userInput"],
       llmBot: [],
-      llmInput: ["llmInput"], // uses 'prompt'
+      llmInput: ["llmInput"],
     };
 
     function getStepLabel(step, index) {
@@ -416,7 +564,7 @@
 
         const meta = document.createElement("span");
         meta.className = "meta";
-        meta.textContent = step.next ? `→ ${step.next}` : "";
+        meta.textContent = step.next != null ? `→ ${step.next}` : "";
 
         li.appendChild(mainText);
         li.appendChild(meta);
@@ -454,7 +602,6 @@
       moveDownBtn.disabled = selectedIndex === script.length - 1;
       deleteStepBtn.disabled = script.length === 0;
 
-      // Fill fields
       fieldType.value = step.type || "bot";
       fieldStepId.value = step.stepId || "";
       fieldNext.value = step.next != null ? String(step.next) : "";
@@ -467,9 +614,7 @@
       fieldText.value = step.text || "";
       fieldPrompt.value = step.prompt || "";
 
-      // Render choices + branches
       renderChoiceRows(step);
-
       updateVisibleFieldGroups();
     }
 
@@ -478,7 +623,7 @@
       const choices = Array.isArray(step.choices) ? step.choices : [];
       const branches = step.branches || {};
 
-      choices.forEach((label, idx) => {
+      choices.forEach((label) => {
         const branchTarget = branches[label] || "";
 
         const row = document.createElement("div");
@@ -532,7 +677,6 @@
       if (nextRaw === "") {
         delete step.next;
       } else if (!isNaN(Number(nextRaw))) {
-        // If it's a pure number, save it as a number; otherwise string.
         step.next = Number(nextRaw);
       } else {
         step.next = nextRaw;
@@ -549,7 +693,6 @@
       if (lp) step.llmProfile = lp;
       else delete step.llmProfile;
 
-      // Type-specific fields
       if (step.type === "bot") {
         step.text = fieldText.value;
         delete step.prompt;
@@ -557,7 +700,7 @@
         delete step.branches;
       } else if (step.type === "choice") {
         step.prompt = fieldPrompt.value;
-        // collect choices + branches
+
         const labels = [];
         const branches = {};
         choicesRows.querySelectorAll(".choice-row").forEach((row) => {
@@ -593,14 +736,12 @@
         delete step.branches;
       }
 
-      // Clean up undefined keys for nicer JSON
       Object.keys(step).forEach((key) => {
         if (step[key] === undefined) delete step[key];
       });
     }
 
-    // ---- Event wiring ----
-
+    // ---- Step list actions ----
     addStepBtn.addEventListener("click", () => {
       saveCurrentStep();
       const newStep = {
@@ -618,7 +759,6 @@
       if (selectedIndex < 0 || !script[selectedIndex]) return;
       saveCurrentStep();
       const copy = JSON.parse(JSON.stringify(script[selectedIndex]));
-      // Optionally tweak the stepId slightly
       copy.stepId = copy.stepId ? `${copy.stepId}_copy` : undefined;
       script.splice(selectedIndex + 1, 0, copy);
       selectedIndex = selectedIndex + 1;
@@ -690,10 +830,14 @@
       choicesRows.appendChild(row);
     });
 
+    // ---- Export / import / new script ----
     exportJsonBtn.addEventListener("click", () => {
       saveCurrentStep();
       const json = JSON.stringify(script, null, 2);
-      jsonOutput.value = `const SCRIPT_HYPERTENSION = ${json};`;
+      const scriptName = (scriptNameInput.value.trim() || "SCRIPT_NEW").replace(/[^\w$]/g, "_");
+      const fileName = fileNameInput.value.trim() || "script.js";
+
+      jsonOutput.value = `// ${fileName}\nconst ${scriptName} = ${json};`;
     });
 
     copyJsonBtn.addEventListener("click", async () => {
@@ -712,11 +856,10 @@
       if (!raw) return;
       try {
         let arr = null;
-        if (raw.startsWith("const SCRIPT_HYPERTENSION")) {
-          // Strip leading "const SCRIPT_HYPERTENSION ="
+        if (raw.startsWith("const ")) {
           const idx = raw.indexOf("=");
           const jsonPart = raw.slice(idx + 1);
-          arr = eval("(" + jsonPart + ")"); // cheap but local-only
+          arr = eval("(" + jsonPart + ")");
         } else {
           arr = JSON.parse(raw);
         }
@@ -732,6 +875,276 @@
         console.error(e);
         alert("Could not parse JSON. Check the console for details.");
       }
+    });
+
+    newEmptyBtn.addEventListener("click", () => {
+      if (!confirm("Start a brand new empty script? This will clear the current builder view.")) return;
+      saveCurrentStep();
+      script = [];
+      selectedIndex = -1;
+      renderStepList();
+      renderEditor();
+      jsonOutput.value = "";
+      // You can also change scriptNameInput/fileNameInput here if you want.
+    });
+
+    // ---- Live preview ----
+    const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // same as index.html
+
+    let previewState = {};
+    let previewStepIndex = 0;
+    let previewStepIndexById = {};
+    let previewRunId = 0;
+    let previewPendingTimeout = null;
+
+    function rebuildPreviewIndex() {
+      previewStepIndexById = {};
+      script.forEach((step, idx) => {
+        if (step.stepId) {
+          previewStepIndexById[step.stepId] = idx;
+        }
+      });
+    }
+
+    function addPreviewBubble(text, role) {
+      const bubble = document.createElement("div");
+      bubble.className = `chat-bubble ${role}`;
+      bubble.textContent = text;
+      previewChatLogEl.appendChild(bubble);
+      previewChatLogEl.scrollTop = previewChatLogEl.scrollHeight;
+    }
+
+    function showPreviewTypingIndicator(text) {
+      previewChatInputEl.innerHTML = "";
+      const span = document.createElement("div");
+      span.className = "typing-indicator";
+      span.textContent = text || "Thinking…";
+      previewChatInputEl.appendChild(span);
+    }
+
+    function clearPreviewInput() {
+      previewChatInputEl.innerHTML = "";
+    }
+
+    function computeNextPreviewIndex(currentIndex, step, choiceLabel) {
+      if (!step) return currentIndex + 1;
+
+      if (step.type === "choice" && choiceLabel) {
+        const dict = step.branches || {};
+        const targetId = dict[choiceLabel];
+        if (targetId && previewStepIndexById[targetId] != null) {
+          return previewStepIndexById[targetId];
+        }
+      }
+
+      if (step.next != null) {
+        if (typeof step.next === "number") {
+          if (step.next >= 0 && step.next < script.length) {
+            return step.next;
+          }
+        } else if (typeof step.next === "string") {
+          if (previewStepIndexById[step.next] != null) {
+            return previewStepIndexById[step.next];
+          }
+        }
+      }
+
+      return currentIndex + 1;
+    }
+
+    async function callPreviewLLM(userText, options = {}) {
+      const { endpoint } = options;
+      const url = endpoint || API_URL;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userText,
+          // Let backend use its DEFAULT_SYSTEM_PROMPT for preview
+        }),
+      });
+      const data = await response.json();
+      const raw = data.reply || data.summary || JSON.stringify(data);
+      return raw;
+    }
+
+    async function renderPreviewStep() {
+      clearPreviewInput();
+      if (!script || script.length === 0) return;
+      if (previewStepIndex >= script.length) return;
+
+      const step = script[previewStepIndex];
+      if (!step) return;
+
+      // BOT
+      if (step.type === "bot") {
+        addPreviewBubble(step.text || "", "bot");
+        previewStepIndex = computeNextPreviewIndex(previewStepIndex, step);
+        if (previewStepIndex < script.length) {
+          previewPendingTimeout = setTimeout(() => {
+            renderPreviewStep();
+          }, 400);
+        }
+      }
+      // CHOICE
+      else if (step.type === "choice") {
+        addPreviewBubble(step.prompt || "", "bot");
+        const wrapper = document.createElement("div");
+        wrapper.className = "chat-choice-group";
+
+        (step.choices || []).forEach((choiceLabel) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = choiceLabel;
+          btn.addEventListener("click", () => {
+            addPreviewBubble(choiceLabel, "user");
+            previewState[step.id || step.stepId || "choice"] = choiceLabel;
+            previewChatInputEl.innerHTML = "";
+            previewStepIndex = computeNextPreviewIndex(previewStepIndex, step, choiceLabel);
+            renderPreviewStep();
+          });
+          wrapper.appendChild(btn);
+        });
+
+        previewChatInputEl.innerHTML = "";
+        previewChatInputEl.appendChild(wrapper);
+      }
+      // userInput
+      else if (step.type === "userInput") {
+        addPreviewBubble(step.prompt || "", "bot");
+        const block = document.createElement("div");
+        block.className = "chat-input-block";
+
+        const textarea = document.createElement("textarea");
+        textarea.rows = 3;
+        textarea.placeholder = "Type your response here…";
+
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "Submit";
+
+        submitBtn.addEventListener("click", () => {
+          const value = textarea.value.trim();
+          if (!value) return;
+          addPreviewBubble(value, "user");
+          previewState[step.id || step.stepId || "input"] = value;
+          previewChatInputEl.innerHTML = "";
+          previewStepIndex = computeNextPreviewIndex(previewStepIndex, step);
+          renderPreviewStep();
+        });
+
+        block.appendChild(textarea);
+        block.appendChild(submitBtn);
+        previewChatInputEl.innerHTML = "";
+        previewChatInputEl.appendChild(block);
+      }
+      // llmBot
+      else if (step.type === "llmBot") {
+        let sourceKey = step.source;
+        let userText = "";
+        if (sourceKey && previewState[sourceKey] != null) {
+          userText = String(previewState[sourceKey]);
+        } else {
+          userText = "(no source in preview state)";
+        }
+
+        showPreviewTypingIndicator("Calling LLM…");
+        const thisRun = ++previewRunId;
+        try {
+          const reply = await callPreviewLLM(userText, {
+            endpoint: step.endpoint,
+          });
+          if (thisRun !== previewRunId) return;
+          previewChatInputEl.innerHTML = "";
+          addPreviewBubble(reply, "bot");
+        } catch (err) {
+          console.error(err);
+          previewChatInputEl.innerHTML = "";
+          addPreviewBubble("LLM error in preview.", "bot");
+        }
+
+        previewStepIndex = computeNextPreviewIndex(previewStepIndex, step);
+        if (previewStepIndex < script.length) {
+          renderPreviewStep();
+        }
+      }
+      // llmInput
+      else if (step.type === "llmInput") {
+        addPreviewBubble(step.prompt || "", "bot");
+        const block = document.createElement("div");
+        block.className = "chat-input-block";
+
+        const textarea = document.createElement("textarea");
+        textarea.rows = 3;
+        textarea.placeholder = "Type your response here…";
+
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "Submit";
+
+        submitBtn.addEventListener("click", async () => {
+          const value = textarea.value.trim();
+          if (!value) return;
+
+          addPreviewBubble(value, "user");
+          previewState[step.id || step.stepId || "input"] = value;
+          showPreviewTypingIndicator("Calling LLM…");
+
+          const thisRun = ++previewRunId;
+          try {
+            const reply = await callPreviewLLM(value, {
+              endpoint: step.endpoint,
+            });
+            if (thisRun !== previewRunId) return;
+            previewChatInputEl.innerHTML = "";
+            addPreviewBubble(reply, "bot");
+          } catch (err) {
+            console.error(err);
+            previewChatInputEl.innerHTML = "";
+            addPreviewBubble("LLM error in preview.", "bot");
+          }
+
+          previewStepIndex = computeNextPreviewIndex(previewStepIndex, step);
+          if (previewStepIndex < script.length) {
+            renderPreviewStep();
+          }
+        });
+
+        block.appendChild(textarea);
+        block.appendChild(submitBtn);
+        previewChatInputEl.innerHTML = "";
+        previewChatInputEl.appendChild(block);
+      }
+      // Fallback: unknown type
+      else {
+        addPreviewBubble(`(Unknown step type: ${step.type})`, "bot");
+        previewStepIndex = computeNextPreviewIndex(previewStepIndex, step);
+        if (previewStepIndex < script.length) {
+          renderPreviewStep();
+        }
+      }
+    }
+
+    function resetPreview() {
+      if (previewPendingTimeout) {
+        clearTimeout(previewPendingTimeout);
+        previewPendingTimeout = null;
+      }
+      previewRunId++;
+      previewState = {};
+      previewStepIndex = 0;
+      rebuildPreviewIndex();
+      previewChatLogEl.innerHTML = "";
+      previewChatInputEl.innerHTML = "";
+      if (script.length) {
+        renderPreviewStep();
+      } else {
+        previewChatInputEl.textContent = "Script is empty.";
+      }
+    }
+
+    previewRestartBtn.addEventListener("click", () => {
+      saveCurrentStep();
+      resetPreview();
     });
 
     // Initial render
