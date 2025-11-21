@@ -17,7 +17,7 @@
   <button id="sendRealBtn">Ask the assistant</button>
 </div>
 <pre id="realAssistantOutput" class="assistant-output"></pre> -->
-
+<div id="top-bar">
 <h2>Hybrid Scripted/LLM Conversation Flow Demo</h2>
 <p>
   This example shows different conversation flows featuring scripted content and LLM interactivity. Choose one to try:
@@ -29,7 +29,10 @@
   <option value="hypertension">Hypertension education</option>
   <option value="mh_intake">Mental health intake (therapy)</option>
 </select>
-
+</div>
+<button id="headerToggle" class="header-toggle" aria-label="Show header">
+  ⌄ Options
+</button>
 <div id="scripted-chat" class="chat-container">
   <div id="chat-log"></div>
   <div id="chat-input-area" class="chat-input-area"></div>
@@ -335,10 +338,56 @@ SOURCE CHECK
   }
 
   const scenarioSelect = document.getElementById("scenarioSelect");
+  const headerToggle = document.getElementById("headerToggle");
+
+if (headerToggle) {
+  headerToggle.addEventListener("click", () => {
+    // If collapsed, expand; if expanded, collapse
+    const isCollapsed = document.body.classList.contains("chat-header-collapsed");
+    if (isCollapsed) {
+      expandHeader();
+      headerToggle.textContent = "Hide options";
+    } else {
+      collapseHeaderForChat();
+      headerToggle.textContent = "⌄ Options";
+    }
+  });
+}
+  
+  function collapseHeaderForChat() {
+    document.body.classList.add("chat-header-collapsed");
+  }
+
+  function expandHeader() {
+    document.body.classList.remove("chat-header-collapsed");
+  }
 
   scenarioSelect.addEventListener("change", (e) => {
     const key = e.target.value;
-    if (key) resetConversation(key);
+    if (!key) return;
+    resetConversation(key);
+    scenarioSelect.addEventListener("change", (e) => {
+  const key = e.target.value;
+  if (!key) return;
+  resetConversation(key);
+
+  // Auto-collapse on mobile after selecting a scenario
+  if (window.innerWidth <= 768) {
+    collapseHeaderForChat();
+    if (headerToggle) {
+      headerToggle.textContent = "⌄ Options";
+    }
+  }
+});
+
+// Initial load: start with header visible; you can choose to collapse here too if you want
+if (scenarioSelect.value) {
+  resetConversation(scenarioSelect.value);
+  // Optionally:
+  if (window.innerWidth <= 768) collapseHeaderForChat();
+}
+
+    
   });
 
   function getNextIndex(currentIndex, step, options = {}) {
