@@ -457,7 +457,7 @@ async function callLLM(userText, options = {}) {
 function splitIntoBubbles(text) {
   if (!text) return [];
 
-  // Split on blank lines OR new bullet sections
+  // Split on blank lines OR when a new bullet paragraph starts
   const paragraphs = text
     .split(/\n\s*\n|(?=^\s*•)/gm)
     .map(p => p.trim())
@@ -466,20 +466,22 @@ function splitIntoBubbles(text) {
   const bubbles = [];
   let currentGroup = [];
 
-  paragraphs.forEach((p) => {
-    const isDisclaimer = /^(safety (note|reminder)|disclaimer)/i.test(p);
-    const isSource = /^source[s]?:/i.test(p);
+  paragraphs.forEach(p => {
+    const isDisclaimer =
+      /general information.*not (a )?diagnosis|not (a )?treatment|not medical advice/i.test(p);
+    const isSource = /^source\s*check[:]?/i.test(p) || /^source[s]?:/i.test(p);
 
     if (isDisclaimer || isSource) {
+      // Flush accumulated main content
       if (currentGroup.length) {
         bubbles.push(currentGroup.join("\n\n"));
         currentGroup = [];
       }
+      // Disclaimer or source gets its own bubble
       bubbles.push(p);
-      return;
+    } else {
+      currentGroup.push(p);
     }
-
-    currentGroup.push(p);
   });
 
   if (currentGroup.length) {
@@ -490,23 +492,45 @@ function splitIntoBubbles(text) {
 }
 
 
-  function formatLLMReply(text) {
+
+function formatLLMReply(text) {
   if (!text) return "";
 
   let t = text.trim();
 
-  // Convert bullet lists into separate lines
-  t = t.replace(/[\u2022•]\s*/g, "• ");     // normalize bullets
-  t = t.replace(/\n?[-•]\s+/g, "\n• ");     // force one item per line
+  // Normalize line endings
+  t = t.replace(/\r\n/g, "\n");
 
-  // Add blank lines before disclaimers or safety notes
+  // Normalize bullets (if they show up)
+  t = t.replace(/[\u2022•]\s*/g, "• ");
+  t = t.replace(/\n?[-•]\s+/g, "\n• ");
+
+  // Add blank lines before common disclaimer phrases
+  t = t.replace(
+    /(this is\s+general information[^.\n]*\.)/i,
+    "\n\n$1"
+  );
+  t = t.replace(
+    /(this information\s+is (only )?educational[^.\n]*\.)/i,
+    "\n\n$1"
+  );
+  t = t.replace(
+    /(not (a )?diagnosis[^.\n]*\.)/i,
+    "\n\n$1"
+  );
+
+  // Add blank lines before source lines
+  t = t.replace(/(source\s*check[:]?)/i, "\n\n$1");
+
+  // Also handle explicit "safety note"/"disclaimer" if they appear
   t = t.replace(/(safety note|safety reminder|disclaimer)/gi, "\n\n$1");
 
-  // Collapse triple+ breaks → double
+  // Collapse 3+ newlines to exactly 2
   t = t.replace(/\n{3,}/g, "\n\n");
 
   return t;
 }
+
 
 
 
