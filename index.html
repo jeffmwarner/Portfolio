@@ -371,7 +371,7 @@ if (headerToggle) {
 
 
   // Auto-collapse on mobile after selecting a scenario
-  if (window.innerWidth <= 768) {
+ if (window.innerWidth <= 768 || window.innerHeight <= 1000) {
     collapseHeaderForChat();
     if (headerToggle) {
       headerToggle.textContent = "⌄ Options";
