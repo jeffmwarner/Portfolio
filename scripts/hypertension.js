@@ -44,7 +44,7 @@ const SCRIPT_HYPERTENSION = [
     stepId: "freeTextQuestion",
     next: "questionLLM",
     id: "patientQuestion",
-    prompt: `What questions do you have about your blood pressure or treatment {{nextAction}}`,
+    prompt: `What questions do you have about your blood pressure or treatment {nextAction || ""}`,
   },
   {
     type: "llmBot",
