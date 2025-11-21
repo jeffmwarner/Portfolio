@@ -356,10 +356,12 @@ if (headerToggle) {
   
   function collapseHeaderForChat() {
     document.body.classList.add("chat-header-collapsed");
+    headerToggle.textContent = "⌄ Options";
   }
 
   function expandHeader() {
     document.body.classList.remove("chat-header-collapsed");
+    headerToggle.textContent = "Hide options"
   }
 
   scenarioSelect.addEventListener("change", (e) => {
