@@ -249,3 +249,52 @@ body {
     opacity: 1;
   }
 }
+
+/* Top bar wrapper */
+#top-bar {
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+}
+
+/* Floating toggle button (hidden by default on desktop) */
+.header-toggle {
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  z-index: 50;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: none;
+  background: #111827;
+  color: #f9fafb;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  display: none; /* default hidden */
+}
+
+/* Mobile behavior only */
+@media (max-width: 768px) {
+
+  /* When header is collapsed, slide it out of view */
+  body.chat-header-collapsed #top-bar {
+    transform: translateY(-100%);
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+
+  /* Show the floating toggle button when collapsed */
+  body.chat-header-collapsed .header-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Also show the toggle in general on mobile so user can hide again */
+  .header-toggle {
+    display: inline-flex;
+  }
+}
