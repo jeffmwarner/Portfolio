@@ -696,12 +696,15 @@ function interpolate(text, state) {
 
     // CHOICE
     else if (step.type === "choice") {
-      addBubble(step.prompt, "bot");
+      const rawPrompt = typeof step.prompt === "function" ? step.prompt(state) : step.prompt;
+      addBubble(interpolate(rawPrompt), "bot");
 
       const wrapper = document.createElement("div");
       wrapper.className = "choice-buttons";
 
       step.choices.forEach((choiceText) => {
+        const rawLabel = typeof choiceRaw === "function" ? choiceRaw(state) : choiceRaw;
+        const label = interpolate(rawLabel);
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = choiceText;
