@@ -383,6 +383,7 @@
           <option value="userInput">userInput</option>
           <option value="llmBot">llmBot</option>
           <option value="llmInput">llmInput</option>
+          <option value="compute">compute</option>
         </select>
 
         <div class="field-row">
@@ -438,8 +439,20 @@
             <button type="button" id="addChoiceRowBtn">+ Add choice</button>
           </div>
         </div>
-      </form>
 
+
+      <div data-field-group="compute">
+        <label>Compute (JavaScript, runs with <code>state</code> available)</label>
+        <textarea id="field-compute"
+          placeholder="Example:&#10;const topic = state.focusTopic || &quot;&quot;;&#10;const q = state.patientQuestion || &quot;&quot;;&#10;state.hypertensionLLMInput = `Topic: ${topic}\n\nQuestion: ${q}`;">
+        </textarea>
+        <small style="color:#9ca3af;">
+        This code is executed as <code>new Function("state", compute)(state)</code>.
+        Use it to do concatenation, calculations, or other transformations.
+        </small>
+      </div>
+    </form>
+      
       <div class="editor-actions">
         <div class="editor-actions-left">
           <button id="moveUpBtn" disabled>↑ Move up</button>
@@ -520,7 +533,7 @@
     const fieldLlmProfile = document.getElementById("field-llmProfile");
     const fieldText = document.getElementById("field-text");
     const fieldPrompt = document.getElementById("field-prompt");
-
+    const fieldCompute = document.getElementById("field-compute");
     const choicesRows = document.getElementById("choicesRows");
     const addChoiceRowBtn = document.getElementById("addChoiceRowBtn");
 
@@ -545,6 +558,7 @@
       userInput: ["userInput"],
       llmBot: [],
       llmInput: ["llmInput"],
+      compute: ["compute"],
     };
 
     function getStepLabel(step, index) {
@@ -613,6 +627,7 @@
 
       fieldText.value = step.text || "";
       fieldPrompt.value = step.prompt || "";
+      fieldCompute.value = step.compute || "";
 
       renderChoiceRows(step);
       updateVisibleFieldGroups();
@@ -734,7 +749,20 @@
         delete step.prompt;
         delete step.choices;
         delete step.branches;
+      } else if (step.type === "compute") {
+        const code = fieldCompute.value.trim();
+        if (code) {
+          step.compute = code;
+        } else {
+          delete step.compute;
+        }
+      // compute step has no text/prompt/choices
+        delete step.text;
+        delete step.prompt;
+        delete step.choices;
+        delete step.branches;
       }
+
 
       Object.keys(step).forEach((key) => {
         if (step[key] === undefined) delete step[key];
@@ -969,6 +997,21 @@
       return raw;
     }
 
+    function runPreviewComputeStep(step) {
+      if (!step || !step.compute) return;
+      try {
+        if (typeof step.compute === "function") {
+          step.compute(previewState);
+        } else if (typeof step.compute === "string" && step.compute.trim()) {
+          const fn = new Function("state", step.compute);
+          fn(previewState);
+        }
+      } catch (err) {
+        console.error("Error in preview compute step", step.stepId, err);
+      }
+    }
+
+
     async function renderPreviewStep() {
       clearPreviewInput();
       if (!script || script.length === 0) return;
@@ -1113,7 +1156,18 @@
         block.appendChild(submitBtn);
         previewChatInputEl.innerHTML = "";
         previewChatInputEl.appendChild(block);
+      } else if (step.type === "compute") {
+      // No UI; just run and jump ahead
+        runPreviewComputeStep(step);
+
+        previewStepIndex = computeNextPreviewIndex(previewStepIndex, step);
+        if (previewStepIndex < script.length) {
+          renderPreviewStep();
+        } else {
+          clearPreviewInput();
+        }
       }
+
       // Fallback: unknown type
       else {
         addPreviewBubble(`(Unknown step type: ${step.type})`, "bot");
