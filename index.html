@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligent Health Conversation</title>
-<link rel="stylesheet" type="text/css" href="/Portfolio/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligent Health Conversation</title>
+  <link rel="stylesheet" type="text/css" href="/Portfolio/styles.css">
 </head>
 <script src="/Portfolio/scripts/hypertension.js"></script>
 <script src="/Portfolio/scripts/mh_intake.js"></script>
@@ -37,20 +37,19 @@
 
 <script>
   let conversationScript = [];
-
   let stepIndexById = {};
 
-function rebuildStepIndex() {
-  stepIndexById = {};
-  conversationScript.forEach((step, index) => {
-    if (step.stepId) {
-      stepIndexById[step.stepId] = index;
-    }
-  });
-}
+  function rebuildStepIndex() {
+    stepIndexById = {};
+    conversationScript.forEach((step, index) => {
+      if (step.stepId) {
+        stepIndexById[step.stepId] = index;
+      }
+    });
+  }
 
   const chatContainerEl = document.getElementById("scripted-chat");
-    
+
   let activeLLMProfile = 'default';
   const API_URL = "https://conversation-backend-yxsq.onrender.com/api/chat"; // my backend URL at Render
 
@@ -83,28 +82,28 @@ function rebuildStepIndex() {
       const formatReply = (text) => {
         return text.replace(/([.?!])\s+/g, '$1\n\n');
       }
-      
+
       outputEl.textContent = data.reply;
     } catch (err) {
       console.error(err);
-      
+
       outputEl.textContent = "Network error talking to the assistant.";
     }
   });
 </script>
 <script>
-  
+
 
   // --- Predetermined conversation script with optional routing fields ---
 
 
-const LLM_PROFILES = {
-  default: `
+  const LLM_PROFILES = {
+    default: `
 You are a careful, concise assistant. Be clear and kind. Avoid medical, legal,
 or financial advice. If you are unsure, say so.
 `.trim(),
 
-  hypertensionEducation: `
+    hypertensionEducation: `
 You are an educational assistant explaining high blood pressure (hypertension)
 in plain, patient-friendly language.
 
@@ -142,7 +141,7 @@ SOURCE CHECK
   "Source Check: Consistent with AHA/NIH/CDC educational guidance on hypertension."
 `.trim(),
 
-  mentalHealthIntake: `
+    mentalHealthIntake: `
 You are a supportive mental-health intake assistant.
 
 AUTHORITATIVE SOURCES
@@ -185,116 +184,116 @@ SOURCE CHECK
 - At the end of each answer, add one line:
   "Source Check: Consistent with APA/NIH/CDC/WHO educational guidance on mental health."
 `.trim(),
-};
+  };
 
 
-const SCENARIOS = {
-  hypertension: {
+  const SCENARIOS = {
+    hypertension: {
       script: SCRIPT_HYPERTENSION,
       llmProfile: "hypertensionEducation",
-  },
-  mh_intake: {
+    },
+    mh_intake: {
       script: SCRIPT_MH_INTAKE,
       llmProfile: "mentalHealthIntake",
-  }
-};
-    
-    
+    }
+  };
 
-const STATICconversationScript = [
-  {
-    type: "bot",
-    stepId: "intro1",
-    next: "intro2",
-    text: `Hi there! I'm here to help you get connected with care.`,
-  },
-  {
-    type: "bot",
-    stepId: "intro2",
-    next: "askConcern",
-    text: `To get started`,
-  },
-  {
-    type: "choice",
-    stepId: "focusChoice",
-    branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath", "Anxiety": "anxietyPath", "Skip this": "final" },
-    id: "focusArea",
-    prompt: `Which area feels most important to talk about first?`,
-    choices: ["Stress", "Sleep", "Depression", "Anxiety"],
-  },
-  {
-    type: "bot",
-    stepId: "stressPath",
-    next: "stressLLM",
-    text: `Let's talk through stress first.`,
-  },
-  {
-    type: "llmBot",
-    stepId: "stressLLM",
-    next: "rejoin",
-    source: "focusArea",
-    endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
-  },
-  {
-    type: "bot",
-    stepId: "sleepPath",
-    next: "sleepLLM",
-    text: `Sleep problems can impact everything. Let's unpack that.`,
-  },
-  {
-    type: "llmBot",
-    stepId: "sleepLLM",
-    next: "rejoin",
-    source: "focusArea",
-    endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
-  },
-  {
-    type: "bot",
-    stepId: "depressionPath",
-    next: "depLLM",
-    text: `Thanks for bringing up depression, that's a really important topic.`,
-  },
-  {
-    type: "llmBot",
-    stepId: "depLLM",
-    next: "rejoin",
-    source: "focusArea",
-    endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
-  },
-  {
-    type: "bot",
-    stepId: "anxietyPath",
-    next: "anxietyLLM",
-    text: `While anxiety can be helpful in the right situation, too much anxiety at the wrong time can be a lot to manage.`,
-  },
-  {
-    type: "llmBot",
-    stepId: "anxietyLLM",
-    next: "rejoin",
-    source: "focusArea",
-  },
-  {
-    type: "bot",
-    stepId: "rejoin",
-    next: "nextStep",
-    text: `Before we wrap up`,
-  },
-  {
-    type: "choice",
-    stepId: "nextStep",
-    next: "final",
-    id: "nextStepChoice",
-    prompt: `What feels like a helpful next step?`,
-    choices: ["Get matched with a therapist", "Learn what therapy is like", "Try coping strategies"],
-  },
-  {
-    type: "bot",
-    stepId: "final",
-    text: `Thanks! This is only a short demo, but this framework scales to a full intake experience.`,
-  },
-];
 
-const AAAconversationScript = [
+
+  const STATICconversationScript = [
+    {
+      type: "bot",
+      stepId: "intro1",
+      next: "intro2",
+      text: `Hi there! I'm here to help you get connected with care.`,
+    },
+    {
+      type: "bot",
+      stepId: "intro2",
+      next: "askConcern",
+      text: `To get started`,
+    },
+    {
+      type: "choice",
+      stepId: "focusChoice",
+      branches: { "Stress": "stressPath", "Sleep": "sleepPath", "Depression": "depressionPath", "Anxiety": "anxietyPath", "Skip this": "final" },
+      id: "focusArea",
+      prompt: `Which area feels most important to talk about first?`,
+      choices: ["Stress", "Sleep", "Depression", "Anxiety"],
+    },
+    {
+      type: "bot",
+      stepId: "stressPath",
+      next: "stressLLM",
+      text: `Let's talk through stress first.`,
+    },
+    {
+      type: "llmBot",
+      stepId: "stressLLM",
+      next: "rejoin",
+      source: "focusArea",
+      endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
+    },
+    {
+      type: "bot",
+      stepId: "sleepPath",
+      next: "sleepLLM",
+      text: `Sleep problems can impact everything. Let's unpack that.`,
+    },
+    {
+      type: "llmBot",
+      stepId: "sleepLLM",
+      next: "rejoin",
+      source: "focusArea",
+      endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
+    },
+    {
+      type: "bot",
+      stepId: "depressionPath",
+      next: "depLLM",
+      text: `Thanks for bringing up depression, that's a really important topic.`,
+    },
+    {
+      type: "llmBot",
+      stepId: "depLLM",
+      next: "rejoin",
+      source: "focusArea",
+      endpoint: "https://conversation-backend-yxsq.onrender.com/api/chat",
+    },
+    {
+      type: "bot",
+      stepId: "anxietyPath",
+      next: "anxietyLLM",
+      text: `While anxiety can be helpful in the right situation, too much anxiety at the wrong time can be a lot to manage.`,
+    },
+    {
+      type: "llmBot",
+      stepId: "anxietyLLM",
+      next: "rejoin",
+      source: "focusArea",
+    },
+    {
+      type: "bot",
+      stepId: "rejoin",
+      next: "nextStep",
+      text: `Before we wrap up`,
+    },
+    {
+      type: "choice",
+      stepId: "nextStep",
+      next: "final",
+      id: "nextStepChoice",
+      prompt: `What feels like a helpful next step?`,
+      choices: ["Get matched with a therapist", "Learn what therapy is like", "Try coping strategies"],
+    },
+    {
+      type: "bot",
+      stepId: "final",
+      text: `Thanks! This is only a short demo, but this framework scales to a full intake experience.`,
+    },
+  ];
+
+  const AAAconversationScript = [
     {
       type: "bot",
       stepId: "intro1",
@@ -324,8 +323,8 @@ const AAAconversationScript = [
         "Measuring blood pressure",
         "Medication concerns",
       ],
-      // You can branch each choice to its own path later if you want.
-      // For now, we'll just send whatever they pick to the LLM.
+      // Maybe branch each choice to its own path?
+      // Currently just send whatever they pick to the LLM.
       next: "focusLLM",
     },
     {
@@ -337,83 +336,54 @@ const AAAconversationScript = [
     },
   ];
 
-    function scrollChatToBottom() {
-  requestAnimationFrame(() => {
-    const container = document.getElementById("scripted-chat");
-    if (!container) return;
-    // container.scrollTop = container.scrollHeight;
+  function scrollChatToBottom() {
+    requestAnimationFrame(() => {
+      const container = document.getElementById("scripted-chat");
+      if (!container) return;
+      // container.scrollTop = container.scrollHeight;
       container.scrollTo({
         top: container.scrollHeight,
-        behavior: "smooth"          
+        behavior: "smooth"
       });
-  });
-}
-
-function resetConversation(scenarioKey) {
-  // Kill pending timeouts
-  if (pendingTimeout) {
-    clearTimeout(pendingTimeout);
-    pendingTimeout = null;
+    });
   }
 
-  runId++;  // invalidate all in-flight async LLM calls
+  function resetConversation(key) {
+    // Kill pending timeouts
+    if (pendingTimeout) {
+      clearTimeout(pendingTimeout);
+      pendingTimeout = null;
+    }
 
-  // Clear UI
-  chatLogEl.innerHTML = "";
-  chatInputAreaEl.innerHTML = "";
+    runId++; // invalidate in-flight async calls
 
-  // Reset state + index
-  state = {};
-  currentStepIndex = 0;
+    // Reset UI
+    chatLogEl.innerHTML = "";
+    chatInputAreaEl.innerHTML = "";
 
-  // Load script + system profile instructions
-  const scenario = SCENARIOS[scenarioKey];
+    // Reset state
+    state = {};
+    currentStepIndex = 0;
 
-  activeScript = scenario?.script || [];
-  activeProfile = scenario?.llmProfile || null;
+    // Load scenario script + profile
+    const scenario = SCENARIOS[key] || {};
+    conversationScript = scenario.script || [];
+    activeLLMProfile = scenario.llmProfile || "default";
 
-  // Kick off rendering
-  renderStep();
-}
+    // rebuild stepId -> index map
+    rebuildStepIndex();
 
+    if (conversationScript.length > 0) {
+      renderStep();
+    }
+  }
 
-function XXXresetConversation(key) {
-  const scenario = SCENARIOS[key];
-  if (!scenario) return;
+  const scenarioSelect = document.getElementById("scenarioSelect");
 
-  conversationScript = scenario.script;
-  activeLLMProfile = scenario.llmProfile || "default";
-
-  // 🧠 rebuild stepId → index map for THIS script
-  rebuildStepIndex();
-
-  // Reset UI
-  chatLogEl.innerHTML = "";
-  chatInputAreaEl.innerHTML = "";
-
-  // Reset state
-  currentStepIndex = 0;
-  for (const k of Object.keys(state)) delete state[k];
-
-  renderStep();
-}
-
-
-const scenarioSelect = document.getElementById("scenarioSelect");
-
-scenarioSelect.addEventListener("change", (e) => {
-  const key = e.target.value;
-  resetConversation(key);
-});
-
-
-  // --- Build stepId -> index map for branching ---
-  // let stepIndexById = {};
-  // conversationScript.forEach((step, index) => {
-  //   if (step.stepId) {
-  //     stepIndexById[step.stepId] = index;
-  //   }
-  // });
+  scenarioSelect.addEventListener("change", (e) => {
+    const key = e.target.value;
+    if (key) resetConversation(key);
+  });
 
   function getNextIndex(currentIndex, step, options = {}) {
     const { choiceValue } = options;
@@ -446,8 +416,6 @@ scenarioSelect.addEventListener("change", (e) => {
   const chatLogEl = document.getElementById("chat-log");
   const chatInputAreaEl = document.getElementById("chat-input-area");
 
-  
-  
   let activeScript = null;
   let activeProfile = null;
   let currentStepIndex = 0;
@@ -455,156 +423,28 @@ scenarioSelect.addEventListener("change", (e) => {
   let pendingTimeout = null;
   let runId = 0; // prevents stale LLM responses
 
-function addBubble(text, role) {
-  const bubble = document.createElement("div");
-  bubble.className = `chat-bubble ${role}`;
-  bubble.textContent = text;
+  function addBubble(text, role) {
+    const bubble = document.createElement("div");
+    bubble.className = `chat-bubble ${role}`;
+    bubble.textContent = text;
 
-  chatLogEl.appendChild(bubble);
+    chatLogEl.appendChild(bubble);
 
-  scrollChatToBottom();
-}
-
-  // Scroll to bottom of the scrollable container
-/*  requestAnimationFrame(() => {
-    if (chatContainerEl) {
-      chatContainerEl.scrollTop = chatContainerEl.scrollHeight;
-    } else {
-      // fallback if #chat-log is the scroller in some layouts
-      chatLogEl.scrollTop = chatLogEl.scrollHeight;
-    }
-  }); 
-}*/
-  
-  // function addBubble(text, role) {
-  //   const bubble = document.createElement("div");
-  //   bubble.className = `chat-bubble ${role}`;
-  //   bubble.textContent = text;
-  //   chatLogEl.appendChild(bubble);
-  //   chatLogEl.scrollTop = chatLogEl.scrollHeight;
-  // }
-
-//   async function callLLM(userText, options = {}) {
-//   const { endpoint, systemPrompt } = options;
-//   const url = endpoint || API_URL;
-
-//   const response = await fetch(url, {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({
-//       message: userText,
-//       systemPrompt: systemPrompt || undefined, // omit if not provided
-//     }),
-//   });
-
-//   if (!response.ok) {
-//     console.error("LLM error:", await response.text());
-//     return "Sorry, I’m having trouble responding right now.";
-//   }
-
-//   const data = await response.json();
-//   return data.reply || data.summary || JSON.stringify(data);
-// }
-
-async function callLLM(userText, options = {}) {
-  const { endpoint, systemPrompt } = options;
-  const url = endpoint || API_URL;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: userText,
-      profile: activeProfile,
-      systemPrompt: systemPrompt || undefined,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error("LLM error:", await response.text());
-    return "Sorry, I’m having trouble responding right now.";
+    scrollChatToBottom();
   }
 
-  const data = await response.json();
-  const raw = data.reply || data.summary || JSON.stringify(data);
-
-  return formatLLMReply(raw);
-}
-
-function formatLLMReply(text) {
-  if (!text) return "";
-
-  let out = text;
-
-  // Normalize newlines
-  out = out.replace(/\r\n?/g, "\n");
-
-  // If the model shoves bullets right after a colon:
-  // "ranges: • Normal..." -> "ranges:\n\n• Normal..."
-  out = out.replace(/:\s*([\-*•])\s*/g, ':\n\n$1 ');
-
-  // Convert hyphen/asterisk bullets at the start of a line into •
-  // "- something" or "* something" -> "• something"
-  out = out.replace(/^[\-\*]\s+/gm, "• ");
-
-  // If a bullet appears mid-line without a newline before it,
-  // insert a line break: "mmHg • Normal" -> "mmHg\n• Normal"
-  out = out.replace(/([^.\n])\s+•\s+/g, "$1\n• ");
-
-  // Add a blank line before blocks of bullets if they follow text
-  out = out.replace(/([^.:\n])\n(• )/g, "$1\n\n$2");
-
-  // Collapse too many newlines (3+ → 2)
-  out = out.replace(/\n{3,}/g, "\n\n");
-
-  // Trim extra whitespace
-  out = out.trim();
-
-  return out;
-}
-
-
-function XXXformatLLMReply(text) {
-  if (!text) return "";
-
-  let out = text;
-
-  // Normalize Windows/Mac newline variations
-  out = out.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-  // Fix bullet-like list items (hyphens, asterisks, or •)
-  out = out.replace(/[\*\-•]\s*(.+)/g, "• $1");
-
-  // Add extra line breaks before bullet list sections
-  out = out.replace(/\n•/g, "\n\n•");
-
-  // Format numbered lists ("1." "2)" "3 -")
-  out = out.replace(/(\d+)[.)-]\s*(.+)/g, "$1. $2");
-
-  // Add spacing before numbered lists
-  out = out.replace(/\n\d+\./g, "\n\n$&");
-
-  // Ensure paragraphs are spaced
-  out = out.replace(/([^.])\n(?!\n)/g, "$1\n\n");
-
-  // Collapse too many newlines to a max of 2
-  out = out.replace(/\n{3,}/g, "\n\n");
-
-  // Clean leading/trailing whitespace
-  out = out.trim();
-
-  return out;
-}
-
-
-    
-  async function XXXcallLLM(userText, endpointOverride) {
-    const url = endpointOverride || API_URL;
+  async function callLLM(userText, options = {}) {
+    const { endpoint, systemPrompt } = options;
+    const url = endpoint || API_URL;
 
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userText }),
+      body: JSON.stringify({
+        message: userText,
+        profile: activeProfile,
+        systemPrompt: systemPrompt || undefined,
+      }),
     });
 
     if (!response.ok) {
@@ -613,15 +453,45 @@ function XXXformatLLMReply(text) {
     }
 
     const data = await response.json();
-    // return data.reply || data.summary || JSON.stringify(data);
-    return formatLLMReply(data.reply || data.summary || JSON.stringify(data));
+    const raw = data.reply || data.summary || JSON.stringify(data);
 
+    return formatLLMReply(raw);
+  }
+
+  function formatLLMReply(text) {
+    if (!text) return "";
+
+    let out = text;
+
+    // Normalize newlines
+    out = out.replace(/\r\n?/g, "\n");
+
+    // If the model shoves bullets right after a colon:
+    // "ranges: • Normal..." -> "ranges:\n\n• Normal..."
+    out = out.replace(/:\s*([\-*•])\s*/g, ':\n\n$1 ');
+
+    // Convert hyphen/asterisk bullets at the start of a line into •
+    // "- something" or "* something" -> "• something"
+    out = out.replace(/^[\-\*]\s+/gm, "• ");
+
+    // If a bullet appears mid-line without a newline before it,
+    // insert a line break: "mmHg • Normal" -> "mmHg\n• Normal"
+    out = out.replace(/([^.\n])\s+•\s+/g, "$1\n• ");
+
+    // Add a blank line before blocks of bullets if they follow text
+    out = out.replace(/([^.:\n])\n(• )/g, "$1\n\n$2");
+
+    // Collapse too many newlines (3+ → 2)
+    out = out.replace(/\n{3,}/g, "\n\n");
+
+    // Trim extra whitespace
+    out = out.trim();
+
+    return out;
   }
 
   // Typing indicator
-
   let typingEl = null;
-
   function showTypingIndicator(text = "") {
     if (typingEl) return; // avoid duplicates
 
@@ -649,15 +519,16 @@ function XXXformatLLMReply(text) {
   // --- Main step renderer with branching ---
 
   function renderStep() {
-      if (!activeScript) return;
     chatInputAreaEl.innerHTML = ""; // clear input area
-
+    if (!conversationScript || conversationScript.length === 0) {
+      return;
+    }
     if (currentStepIndex >= conversationScript.length) {
       return;
     }
 
     //const step = conversationScript[currentStepIndex];
-      const step = activeScript[currentStepIndex];
+    const step = conversationScript[currentStepIndex];
 
     // BOT
     if (step.type === "bot") {
@@ -741,94 +612,94 @@ function XXXformatLLMReply(text) {
 
     // LLM INPUT (free-text step that calls LLM immediately)
     else if (step.type === "llmInput") {
-  addBubble(step.prompt, "bot");
+      addBubble(step.prompt, "bot");
 
-  const wrapper = document.createElement("div");
-  const textarea = document.createElement("textarea");
-  textarea.rows = 3;
-  textarea.placeholder = "Type your response here...";
+      const wrapper = document.createElement("div");
+      const textarea = document.createElement("textarea");
+      textarea.rows = 3;
+      textarea.placeholder = "Type your response here...";
 
-  const submitBtn = document.createElement("button");
-  submitBtn.textContent = "Submit";
-  submitBtn.className = "primary";
+      const submitBtn = document.createElement("button");
+      submitBtn.textContent = "Submit";
+      submitBtn.className = "primary";
 
-  submitBtn.addEventListener("click", async () => {
-    const value = textarea.value.trim();
-    if (!value) return;
+      submitBtn.addEventListener("click", async () => {
+        const value = textarea.value.trim();
+        if (!value) return;
 
-    addBubble(value, "user");
-    state[step.id] = value;
-    chatInputAreaEl.innerHTML = "";
+        addBubble(value, "user");
+        state[step.id] = value;
+        chatInputAreaEl.innerHTML = "";
 
-    showTypingIndicator("Thinking about your response…");
+        showTypingIndicator("Thinking about your response…");
 
-    const profileKey = step.llmProfile || activeLLMProfile || "default";
-    const systemPrompt = LLM_PROFILES[profileKey];
+        const profileKey = step.llmProfile || activeLLMProfile || "default";
+        const systemPrompt = LLM_PROFILES[profileKey];
 
-    const llmReply = await callLLM(value, {
-      endpoint: step.endpoint,
-      systemPrompt,
-    });
+        const llmReply = await callLLM(value, {
+          endpoint: step.endpoint,
+          systemPrompt,
+        });
 
-    hideTypingIndicator();
-    addBubble(llmReply, "bot");
-    scrollChatToBottom();
+        hideTypingIndicator();
+        addBubble(llmReply, "bot");
+        scrollChatToBottom();
 
-    const nextIndex = getNextIndex(currentStepIndex, step);
-    currentStepIndex = nextIndex;
-    renderStep();
-  });
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        renderStep();
+      });
 
-  wrapper.appendChild(textarea);
-  wrapper.appendChild(submitBtn);
-  chatInputAreaEl.appendChild(wrapper);
-  scrollChatToBottom();
-}
+      wrapper.appendChild(textarea);
+      wrapper.appendChild(submitBtn);
+      chatInputAreaEl.appendChild(wrapper);
+      scrollChatToBottom();
+    }
 
     // LLM BOT (auto-call LLM using previous state[source])
     else if (step.type === "llmBot") {
-  const sourceId = step.source;
-  const inputText = state[sourceId];
+      const sourceId = step.source;
+      const inputText = state[sourceId];
 
-  if (!inputText) {
-    addBubble("I don’t have enough information yet to respond.", "bot");
-    const nextIndex = getNextIndex(currentStepIndex, step);
-    currentStepIndex = nextIndex;
-    setTimeout(renderStep, 500);
-    return;
-  }
+      if (!inputText) {
+        addBubble("I don’t have enough information yet to respond.", "bot");
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        setTimeout(renderStep, 500);
+        return;
+      }
 
-  chatInputAreaEl.innerHTML = "";
-  showTypingIndicator();
+      chatInputAreaEl.innerHTML = "";
+      showTypingIndicator();
 
-  (async () => {
-    const profileKey = step.llmProfile || activeLLMProfile || "default";
-    const systemPrompt = LLM_PROFILES[profileKey];
+      (async () => {
+        const profileKey = step.llmProfile || activeLLMProfile || "default";
+        const systemPrompt = LLM_PROFILES[profileKey];
 
-    const llmReply = await callLLM(inputText, {
-      endpoint: step.endpoint,
-      systemPrompt,
-    });
+        const llmReply = await callLLM(inputText, {
+          endpoint: step.endpoint,
+          systemPrompt,
+        });
 
-    hideTypingIndicator();
-    addBubble(llmReply, "bot");
+        hideTypingIndicator();
+        addBubble(llmReply, "bot");
 
-    if (step.id) {
-      state[step.id] = llmReply;
+        if (step.id) {
+          state[step.id] = llmReply;
+        }
+
+        const nextIndex = getNextIndex(currentStepIndex, step);
+        currentStepIndex = nextIndex;
+        renderStep();
+      })();
     }
-
-    const nextIndex = getNextIndex(currentStepIndex, step);
-    currentStepIndex = nextIndex;
-    renderStep();
-  })();
-}
 
   }
 
   // Kick off the scripted conversation
   //renderStep();
   //resetConversation("hypertension");
-    resetConversation(document.getElementById("scenarioSelect").value);
+  resetConversation(document.getElementById("scenarioSelect").value);
 </script>
 
 
