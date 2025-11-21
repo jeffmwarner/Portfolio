@@ -196,12 +196,12 @@ body {
   p
 }
 
-#top-bar button, .choice-buttons button:hover {
+#top-bar button:hover, .choice-buttons button:hover {
   background: #e0e7ff;
   box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 } 
 
-#top-bar button, .choice-buttons button:active {
+#top-bar button:active, .choice-buttons button:active {
   background: #c7d2fe;
   transform: translateY(1px);
 }
