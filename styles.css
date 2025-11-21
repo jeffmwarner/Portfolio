@@ -275,7 +275,7 @@ body {
 }
 
 /* Mobile behavior only */
-@media (max-width: 768px), (max-height: 1000px) {
+@media (max-width: 768px) {
 
   /* When header is collapsed, slide it out of view */
   body.chat-header-collapsed #top-bar {
@@ -297,4 +297,29 @@ body {
   .header-toggle {
     display: inline-flex;
   }
+}
+
+@media (max-height: 1000px) {
+
+  /* When header is collapsed, slide it out of view */
+  body.chat-header-collapsed #top-bar {
+    transform: translateY(-100%);
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+
+  /* Show the floating toggle button when collapsed */
+  body.chat-header-collapsed .header-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Also show the toggle in general on mobile so user can hide again */
+  .header-toggle {
+    display: inline-flex;
+  }
+    
 }
