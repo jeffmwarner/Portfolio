@@ -738,36 +738,39 @@ function interpolate(text, state) {
     // CHOICE
     else if (step.type === "choice") {
       const rawPrompt = typeof step.prompt === "function" ? step.prompt(state) : step.prompt;
-      addBubble(interpolate(rawPrompt), "bot");
+      addBubble(interpolate(rawPrompt, state), "bot");
 
       const wrapper = document.createElement("div");
       wrapper.className = "choice-buttons";
 
-      step.choices.forEach((choiceText) => {
-        const rawLabel = typeof choiceRaw === "function" ? choiceRaw(state) : choiceRaw;
-        const label = interpolate(rawLabel);
+      step.choices.forEach((choice) => {
+    // Allow choices to be either strings or functions(state) -> string
+        const rawLabel = (typeof choice === "function") ? choice(state) : choice;
+        const label = interpolate(rawLabel, state);
+
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.textContent = choiceText;
+        btn.textContent = label;
 
         btn.addEventListener("click", () => {
-          addBubble(choiceText, "user");
-          state[step.id] = choiceText;
+      // Show the selected choice as user bubble
+          addBubble(label, "user");
+          state[step.id] = label;
 
           chatInputAreaEl.innerHTML = "";
-          const nextIndex = getNextIndex(currentStepIndex, step, {
-            choiceValue: choiceText,
-          });
-          currentStepIndex = nextIndex;
-          renderStep();
+        const nextIndex = getNextIndex(currentStepIndex, step, {
+          choiceValue: label,
         });
-
-        wrapper.appendChild(btn);
+        currentStepIndex = nextIndex;
+        renderStep();
       });
 
-      chatInputAreaEl.appendChild(wrapper);
-      scrollChatToBottom();
-    }
+      wrapper.appendChild(btn);
+      });
+
+    chatInputAreaEl.appendChild(wrapper);
+    scrollChatToBottom();
+  }
       
      // COMPUTE (hidden logic step: no UI, just mutate state & continue)
     else if (step.type === "compute") {
